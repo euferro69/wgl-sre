@@ -35,6 +35,308 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+# WebGL SRE (Small Rendering Engine)
+
+This is the documentation to a WebGL Small Rendering Engine created by Breno de Arruda Ferro
+
+The purpose of this engine is to teach and help other people that also want to learn graphics programming to see the pain points that a learner go through when coding an engine from scratch.
+
+Yes, refactoring your architecture to allow **better communication and modularity** between your `Camera`, `StaticMesh`, and `ShaderProgram` is a great idea. This approach will make your rendering pipeline more scalable and maintainable, especially as you add more features like lighting, multiple meshes, or additional camera modes.
+
+Here's a suggested architecture:
+
+---
+
+### **Refactored Architecture**
+
+The goal is to create an abstraction layer that allows reusable components and facilitates interaction between the **camera**, **meshes**, and **shaders**.
+
+### **Key Concepts:**
+
+1. **Object Class**:
+    
+    A base class that contains shared logic for objects in the scene (e.g., transformation matrices, shader references).
+    
+2. **StaticMesh**:
+    
+    Handles geometry (vertices, attributes) and draws the mesh.
+    
+3. **ShaderProgram**:
+    
+    A reusable program wrapper that compiles shaders, stores uniform/attribute locations, and provides methods to set uniforms (like projection matrices).
+    
+4. **Camera**:
+    
+    The camera will maintain its own matrices but will send them to a `ShaderProgram` when needed.
+    
+5. **Scene or Renderer Class** (Optional):
+    
+    Manages the camera, lights, meshes, and their interactions.
+    
+
+---
+
+### **Refactored Class Relationships**
+
+### 1. **Object3D Base Class**
+
+All drawable objects (like `StaticMesh`) and the `Camera` can inherit from this class.
+
+```jsx
+javascript
+CopyEdit
+class Object3D {
+  constructor() {
+    this.position = [0, 0, 0];
+    this.rotation = [0, 0, 0];
+    this.scale = [1, 1, 1];
+    this.modelMatrix = mat4.create();
+  }
+
+  // Update the model matrix based on position, rotation, and scale
+  updateModelMatrix() {
+    mat4.identity(this.modelMatrix);
+    mat4.translate(this.modelMatrix, this.modelMatrix, this.position);
+    mat4.rotateX(this.modelMatrix, this.modelMatrix, this.rotation[0]);
+    mat4.rotateY(this.modelMatrix, this.modelMatrix, this.rotation[1]);
+    mat4.rotateZ(this.modelMatrix, this.modelMatrix, this.rotation[2]);
+    mat4.scale(this.modelMatrix, this.modelMatrix, this.scale);
+  }
+}
+
+```
+
+---
+
+### 2. **ShaderProgram Class**
+
+This wraps shader compilation and provides methods for setting uniforms.
+
+```jsx
+javascript
+CopyEdit
+class ShaderProgram {
+  constructor(gl, vertexShaderSource, fragmentShaderSource) {
+    this.gl = gl;
+    this.program = this.createProgram(vertexShaderSource, fragmentShaderSource);
+    this.uniformLocations = {};
+  }
+
+  // Compile and link shaders
+  createProgram(vsSource, fsSource) {
+    const vs = this.compileShader(vsSource, this.gl.VERTEX_SHADER);
+    const fs = this.compileShader(fsSource, this.gl.FRAGMENT_SHADER);
+
+    const program = this.gl.createProgram();
+    this.gl.attachShader(program, vs);
+    this.gl.attachShader(program, fs);
+    this.gl.linkProgram(program);
+
+    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
+      console.error("Program link error: ", this.gl.getProgramInfoLog(program));
+      return null;
+    }
+    return program;
+  }
+
+  compileShader(source, type) {
+    const shader = this.gl.createShader(type);
+    this.gl.shaderSource(shader, source);
+    this.gl.compileShader(shader);
+
+    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+      console.error(
+        "Shader compile error: ",
+        this.gl.getShaderInfoLog(shader)
+      );
+      return null;
+    }
+    return shader;
+  }
+
+  // Use the program
+  use() {
+    this.gl.useProgram(this.program);
+  }
+
+  // Cache and set uniform locations
+  setUniform(name, type, value) {
+    if (!(name in this.uniformLocations)) {
+      this.uniformLocations[name] = this.gl.getUniformLocation(
+        this.program,
+        name
+      );
+    }
+    const location = this.uniformLocations[name];
+
+    if (type === "mat4") {
+      this.gl.uniformMatrix4fv(location, false, value);
+    } else if (type === "vec3") {
+      this.gl.uniform3fv(location, value);
+    } else if (type === "float") {
+      this.gl.uniform1f(location, value);
+    }
+  }
+}
+
+```
+
+---
+
+### 3. **StaticMesh Class**
+
+The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
+
+```jsx
+javascript
+CopyEdit
+class StaticMesh extends Object3D {
+  constructor(gl, vertices, attributes, shaderProgram) {
+    super();
+    this.gl = gl;
+    this.vertices = vertices;
+    this.attributes = attributes;
+    this.shaderProgram = shaderProgram;
+
+    // Create vertex buffer
+    this.buffer = this.createBuffer(vertices);
+  }
+
+  createBuffer(vertices) {
+    const buffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(vertices),
+      this.gl.STATIC_DRAW
+    );
+    return buffer;
+  }
+
+  draw(camera) {
+    this.shaderProgram.use();
+
+    // Pass matrices to the shader
+    this.shaderProgram.setUniform("u_projectionMatrix", "mat4", camera.getProjectionMatrix());
+    this.shaderProgram.setUniform("u_viewMatrix", "mat4", camera.getViewMatrix());
+    this.shaderProgram.setUniform("u_modelMatrix", "mat4", this.modelMatrix);
+
+    // Bind vertex buffer and set attributes
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
+    this.attributes.forEach(({ name, size, type, normalized, stride, offset }) => {
+      const location = this.gl.getAttribLocation(this.shaderProgram.program, name);
+      this.gl.vertexAttribPointer(location, size, type, normalized, stride, offset);
+      this.gl.enableVertexAttribArray(location);
+    });
+
+    // Draw the object
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertices.length / 6);
+  }
+}
+
+```
+
+---
+
+### 4. **Camera Class**
+
+The camera manages the projection and view matrices.
+
+```jsx
+javascript
+CopyEdit
+class Camera extends Object3D {
+  constructor() {
+    super();
+    this.mode = "perspective";
+    this.aspect = 16 / 9;
+    this.fov = 45;
+    this.near = 0.1;
+    this.far = 100;
+
+    this.projectionMatrix = mat4.create();
+    this.viewMatrix = mat4.create();
+    this.updateProjectionMatrix();
+    this.updateViewMatrix();
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+    this.updateProjectionMatrix();
+  }
+
+  updateProjectionMatrix() {
+    if (this.mode === "perspective") {
+      mat4.perspective(
+        this.projectionMatrix,
+        (this.fov * Math.PI) / 180,
+        this.aspect,
+        this.near,
+        this.far
+      );
+    } else if (this.mode === "orthographic") {
+      mat4.ortho(
+        this.projectionMatrix,
+        -10,
+        10,
+        -10,
+        10,
+        this.near,
+        this.far
+      );
+    }
+  }
+
+  updateViewMatrix() {
+    mat4.lookAt(this.viewMatrix, this.position, this.target, [0, 1, 0]);
+  }
+
+  getProjectionMatrix() {
+    return this.projectionMatrix;
+  }
+
+  getViewMatrix() {
+    return this.viewMatrix;
+  }
+}
+
+```
+
+---
+
+### **How It All Ties Together**
+
+```jsx
+javascript
+CopyEdit
+const shaderProgram = new ShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
+const camera = new Camera();
+camera.setMode("perspective");
+camera.setPosition(0, 5, 10);
+camera.setTarget(0, 0, 0);
+
+const mesh = new StaticMesh(gl, vertices, attributes, shaderProgram);
+
+// Render loop
+function render() {
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  mesh.draw(camera); // Mesh uses camera's matrices
+  requestAnimationFrame(render);
+}
+
+render();
+
+```
+
+---
+
+This refactored architecture creates a clear separation of concerns:
+
+- **ShaderProgram**: Manages shaders and uniforms.
+- **StaticMesh**: Handles geometry.
+- **Camera**: Manages view and projection matrices.
+- **Object3D**: Provides common transformation logic.
+
 # Graphics Programming
 
 **Graphics programming** is the process of using code to create and manipulate images, animations, and visual effects. It involves controlling how objects are drawn on the screen, using techniques like 3D modeling, shading, lighting, and texturing, often by leveraging the GPU through APIs like OpenGL, DirectX, or Vulkan.
