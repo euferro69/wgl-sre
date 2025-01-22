@@ -10,9 +10,28 @@ import { useEffect, useRef } from "react";
 import { vertexShaderSource } from "../shaders/vertexShader";
 import { fragmentShaderSource } from "../shaders/fragmentShader";
 import { Log } from "@/utils/Overlays";
+import { playAudio } from "@/utils/Audio";
+import { Button } from "@mui/material";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Initialize Engine ----------------------------------------------------
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (canvas) {
+      const gl = setupGL(canvas);
+      const inputManager = new InputManager(canvas);
+      const defaultShaderProgram = new ShaderProgram(
+        gl,
+        vertexShaderSource,
+        fragmentShaderSource
+      );
+      const renderer = new Renderer(canvas, gl, inputManager);
+      renderer.start();
+    }
+  });
 
   function setupGL(canvas: HTMLCanvasElement): WebGLRenderingContext {
     const gl = canvas.getContext("webgl");
@@ -26,30 +45,22 @@ export default function Home() {
     return gl;
   }
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-
-    if (canvas) {
-      const gl = setupGL(canvas);
-      // Engine
-      const inputManager = new InputManager(canvas);
-
-      Log("Compiling Shaders...", "#fff", 2, true);
-      const shaderProgram = new ShaderProgram(
-        gl,
-        vertexShaderSource,
-        fragmentShaderSource
-      );
-      Log("Shaders Compiled Successfully!", "#0f0", 2, true);
-      const renderer = new Renderer(canvas, gl, inputManager);
-      renderer.start();
-    }
-  });
-
   return (
     <>
       <FpsOverlay />
       <LogOverlay />
+
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={() => {
+            playAudio("/audio/ci-3-91252.mp3");
+          }}
+        >
+          Play Audio
+        </Button>
+      </div>
 
       <canvas
         ref={canvasRef}

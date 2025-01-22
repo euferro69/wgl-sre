@@ -1,10 +1,12 @@
 import { IShaderProgram } from "@/interfaces/engine_interfaces";
+import { Log } from "@/utils/Overlays";
 
 export class ShaderProgram implements IShaderProgram{
     private gl: WebGLRenderingContext;
     private program: WebGLProgram;
   
     constructor(gl: WebGLRenderingContext, vertexShaderSource: string, fragmentShaderSource: string) {
+      Log("Compiling Shaders...", "#fff", 2, true);
       this.gl = gl;
   
       // Compile shaders
@@ -13,6 +15,7 @@ export class ShaderProgram implements IShaderProgram{
   
       // Link the program
       this.program = this.createProgram(vertexShader, fragmentShader);
+      Log("Shaders Compiled Successfully!", "#0f0", 2, true);
     }
   
     // Compile a shader (vertex or fragment)

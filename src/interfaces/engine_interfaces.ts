@@ -71,3 +71,25 @@ export interface IShaderProgram {
   // Method to clean up the shader program
   delete(): void;
 }
+
+import { VertexAttribute } from "@/interfaces/gl_interfaces"; // Assuming a VertexAttribute interface exists
+
+export interface IStaticMesh {
+  // Attributes describing the vertex data structure
+  attributes: VertexAttribute[];
+
+  // Draw the mesh
+  draw(): void;
+
+  // Update the vertex data and recreate the buffer
+  updateVertices(newVertices: Float32Array): void;
+
+  // Set a custom shader program for this mesh
+  setShaderProgram(shaderProgram: IShaderProgram): void;
+
+  // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
+  setMode(mode: GLenum): void;
+
+  // Clean up WebGL resources
+  delete(): void;
+}
