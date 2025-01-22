@@ -3,10 +3,10 @@ export function Log(
   color: string = "#0ff",
   displayTime: number = 2.0
 ) {
-  const log = document.getElementById("log-list");
+  const log = document.getElementById("log-overlay");
 
   const textElem = document.createElement("div");
-  textElem.className = `color: ${color}; font-size: 14px;`;
+  textElem.className = `text-[${color}] text-sm`;
   textElem.innerHTML = text;
   log?.appendChild(textElem);
   // remove from parent
