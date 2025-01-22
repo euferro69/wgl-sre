@@ -7,6 +7,9 @@ import { Renderer } from "@/engine/Renderer";
 import { ShaderProgram } from "@/engine/ShaderProgram";
 import { useEffect, useRef } from "react";
 
+import { vertexShaderSource } from "../shaders/vertexShader";
+import { fragmentShaderSource } from "../shaders/fragmentShader";
+
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -29,7 +32,11 @@ export default function Home() {
       const gl = setupGL(canvas);
       // Engine
       const inputManager = new InputManager(canvas);
-      // const shaderProgram = new ShaderProgram(gl, );
+      const shaderProgram = new ShaderProgram(
+        gl,
+        vertexShaderSource,
+        fragmentShaderSource
+      );
       const renderer = new Renderer(canvas, gl, inputManager);
       renderer.start();
     }
