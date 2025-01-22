@@ -56,6 +56,7 @@ export interface IRenderer {
     keys: Record<string, boolean>;
     mouse: { x: number; y: number; isDown: boolean };
   };
+
   // Method to start the rendering loop
   start(): void;
 

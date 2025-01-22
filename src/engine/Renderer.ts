@@ -1,14 +1,16 @@
+import { IRenderer, IWebGLCanvas } from "@/interfaces/engine_interfaces";
 import { Log, setFps } from "../utils/Overlays";
 
-export class Renderer {
-  private webglCanvas: { canvas: HTMLCanvasElement; load: () => void; update: () => void; render: () => void };
-  private lastTime: number;
-  private inputState: {
+export class Renderer implements IRenderer {
+  webglCanvas: IWebGLCanvas;
+  lastTime: number;
+  inputState: {
     keys: Record<string, boolean>;
     mouse: { x: number; y: number; isDown: boolean };
   };
 
-  constructor(webglCanvas: { canvas: HTMLCanvasElement; load: () => void; update: () => void; render: () => void }) {
+  // Constructor
+  constructor(webglCanvas: IWebGLCanvas) {
     this.webglCanvas = webglCanvas;
     this.lastTime = 0;
 
@@ -20,7 +22,7 @@ export class Renderer {
     this.bindInputHandlers();
   }
 
-  private bindInputHandlers(): void {
+  bindInputHandlers(): void {
     // Keyboard input
     document.addEventListener("keydown", (event: KeyboardEvent) => {
       this.inputState.keys[event.code] = true;
@@ -35,7 +37,7 @@ export class Renderer {
     this.webglCanvas.canvas.addEventListener("mousemove", (event: MouseEvent) => {
       const rect = this.webglCanvas.canvas.getBoundingClientRect();
       this.inputState.mouse.x = event.clientX - rect.left;
-      this.inputState.mouse.y = event.clientY - rect.top;
+      this.inputState.mouse.y = event.clientY - rect.top; 
     });
 
     this.webglCanvas.canvas.addEventListener("mousedown", () => {
@@ -47,7 +49,8 @@ export class Renderer {
     });
   }
 
-  public start(): void {
+  start(): void {
+    Log("Renderer Started!", "#0f0");
     this.lastTime = performance.now();
 
     this.webglCanvas.load();
@@ -55,7 +58,7 @@ export class Renderer {
     this.animate();
   }
 
-  private animate(): void {
+  animate(): void {
     const currentTime = performance.now();
     const deltaTime = (currentTime - this.lastTime) / 1000;
     this.lastTime = currentTime;
@@ -63,16 +66,15 @@ export class Renderer {
     const fps = Math.round(1 / deltaTime); // FPS calculation
     setFps(fps, deltaTime);
 
+    // Game loop
     this.processInput(deltaTime); // Input processing
-
     this.webglCanvas.update(); // Update
-
     this.webglCanvas.render(); // Render the scene
 
     requestAnimationFrame(() => this.animate()); // Request the next frame
   }
 
-  private processInput(deltaTime: number): void {
+  processInput(deltaTime: number): void {
     // Example: Move an object when arrow keys are pressed
     if (this.inputState.keys["ArrowUp"]) {
       console.log("Move Up");
@@ -89,7 +91,7 @@ export class Renderer {
 
     // Example: Log mouse position and button state
     if (this.inputState.mouse.isDown) {
-      Log(`Mouse Down at (${this.inputState.mouse.x}, ${this.inputState.mouse.y})`);
+      // Log(`Mouse Down at (${this.inputState.mouse.x}, ${this.inputState.mouse.y})`);
     }
   }
 }
