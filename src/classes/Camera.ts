@@ -1,31 +1,32 @@
-import { mat4 } from "gl-matrix"; // Assuming you're using gl-matrix for matrix operations.
+import { ICamera } from "@/interfaces/EngineInterfaces";
+import { mat4, vec3 } from "gl-matrix";
 
-export class Camera {
+export class Camera implements ICamera {
   private projectionMatrix: mat4;
   private viewMatrix: mat4;
-  private position: [number, number, number];
-  private target: [number, number, number];
-  private up: [number, number, number];
-  private fov: number; // Field of View in degrees for perspective mode
+  private position: vec3;
+  private target: vec3;
+  private up: vec3;
+  private fov: number; // Field of View in degrees (for perspective mode)
   private aspect: number; // Aspect ratio
   private near: number; // Near clipping plane
   private far: number; // Far clipping plane
-  private mode: "perspective" | "orthographic" | "2d";
+  private mode: "perspective" | "orthographic";
 
   constructor(
-    mode: "perspective" | "orthographic" | "2d" = "perspective",
-    position: [number, number, number] = [0, 0, 5],
-    target: [number, number, number] = [0, 0, 0],
-    up: [number, number, number] = [0, 1, 0],
-    fov: number = 45,
+    mode: "perspective" | "orthographic" = "perspective",
+    position: vec3 = vec3.fromValues(0, 0, 5),
+    target: vec3 = vec3.fromValues(0, 0, 0),
+    up: vec3 = vec3.fromValues(0, 1, 0),
+    fov: number = 90,
     aspect: number = 1,
     near: number = 0.1,
     far: number = 100
   ) {
     this.mode = mode;
-    this.position = position;
-    this.target = target;
-    this.up = up;
+    this.position = vec3.clone(position);
+    this.target = vec3.clone(target);
+    this.up = vec3.clone(up);
     this.fov = fov;
     this.aspect = aspect;
     this.near = near;
@@ -38,7 +39,7 @@ export class Camera {
     this.updateViewMatrix();
   }
 
-  // Update projection matrix based on the current mode
+  // Update the projection matrix based on the camera mode
   private updateProjectionMatrix(): void {
     if (this.mode === "perspective") {
       mat4.perspective(
@@ -59,49 +60,39 @@ export class Camera {
         this.near,
         this.far
       );
-    } else if (this.mode === "2d") {
-      mat4.ortho(
-        this.projectionMatrix,
-        0,
-        this.aspect, // Right corresponds to aspect ratio
-        0,
-        1, // Top corresponds to normalized device coordinates
-        -1,
-        1
-      );
     }
   }
 
-  // Update view matrix based on the camera's position, target, and up direction
+  // Update the view matrix based on the position, target, and up vector
   private updateViewMatrix(): void {
     mat4.lookAt(this.viewMatrix, this.position, this.target, this.up);
   }
 
-  // Change the camera's mode
-  setMode(mode: "perspective" | "orthographic" | "2d"): void {
+  // Change the camera's mode and update the projection matrix
+  setMode(mode: "perspective" | "orthographic"): void {
     this.mode = mode;
     this.updateProjectionMatrix();
   }
 
-  // Update the aspect ratio (e.g., on window resize)
+  // Update the aspect ratio (e.g., when resizing the window)
   setAspect(aspect: number): void {
     this.aspect = aspect;
     this.updateProjectionMatrix();
   }
 
-  // Set camera position
-  setPosition(position: [number, number, number]): void {
-    this.position = position;
+  // Set the camera position
+  setPosition(position: vec3): void {
+    vec3.copy(this.position, position);
     this.updateViewMatrix();
   }
 
-  // Set camera target
-  setTarget(target: [number, number, number]): void {
-    this.target = target;
+  // Set the camera target
+  setTarget(target: vec3): void {
+    vec3.copy(this.target, target);
     this.updateViewMatrix();
   }
 
-  // Set Field of View
+  // Set the Field of View (for perspective mode only)
   setFov(fov: number): void {
     this.fov = fov;
     this.updateProjectionMatrix();
@@ -122,5 +113,21 @@ export class Camera {
     const viewProjectionMatrix = mat4.create();
     mat4.multiply(viewProjectionMatrix, this.projectionMatrix, this.viewMatrix);
     return viewProjectionMatrix;
+  }
+
+  // Rotate the camera around the target
+  public rotate(axis: vec3, angle: number): void {
+    const rotationMatrix = mat4.create();
+    mat4.rotate(rotationMatrix, mat4.create(), angle, axis);
+
+    const direction = vec3.create();
+    vec3.subtract(direction, this.position, this.target);
+
+    const rotatedDirection = vec3.create();
+    vec3.transformMat4(rotatedDirection, direction, rotationMatrix);
+
+    vec3.add(this.position, this.target, rotatedDirection);
+
+    this.updateViewMatrix();
   }
 }

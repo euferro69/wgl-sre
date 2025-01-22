@@ -56,24 +56,23 @@ export interface IShaderProgram {
   // Method to get the uniform location from the shader program
   getUniformLocation(name: string): WebGLUniformLocation;
 
-  // Method to set a uniform matrix4 value
-  setUniformMatrix4fv(name: string, value: Float32Array): void;
+  // Method to set a uniform matrix4 value]
+  setUniformMatrix4fv(name: string, value: mat4): void;
 
   // Method to set a uniform 1f value
   setUniform1f(name: string, value: number): void;
 
   // Method to set a uniform 3fv value
-  setUniform3fv(name: string, value: Float32Array): void;
+  setUniform3fv(name: string, value: vec3): void;
 
   // Method to set a uniform 4fv value
-  setUniform4fv(name: string, value: Float32Array): void;
+  setUniform4fv(name: string, value: vec4): void;
 
   // Method to clean up the shader program
   delete(): void;
 }
 
-import { VertexAttribute } from "@/interfaces/gl_interfaces"; // Assuming a VertexAttribute interface exists
-
+import { VertexAttribute } from "@/interfaces/GLInterfaces"; // Assuming a VertexAttribute interface exists
 export interface IStaticMesh {
   // Attributes describing the vertex data structure
   attributes: VertexAttribute[];
@@ -92,4 +91,38 @@ export interface IStaticMesh {
 
   // Clean up WebGL resources
   delete(): void;
+}
+
+import { mat4, vec3, vec4 } from "gl-matrix";
+export interface ICamera {
+  // Methods for setting camera properties
+  setMode(mode: "perspective" | "orthographic"): void;
+  setAspect(aspect: number): void;
+  setPosition(position: vec3): void;
+  setTarget(target: vec3): void;
+  setFov(fov: number): void;
+
+  // Getters for camera matrices
+  getProjectionMatrix(): mat4;
+  getViewMatrix(): mat4;
+  getViewProjectionMatrix(): mat4;
+
+  // Camera utility methods
+  rotate(axis: vec3, angle: number): void;
+}
+
+export interface IWorld {
+  gl: WebGLRenderingContext;
+  staticMeshes: IStaticMesh[];
+  cameras: ICamera[];
+  activeCamera: ICamera | null;
+  gridVertices: Float32Array;
+  gridColors: Float32Array;
+
+  addStaticMesh(mesh: IStaticMesh): void;
+  addCamera(camera: ICamera): void;
+  setActiveCamera(camera: ICamera): void;
+  draw(): void;
+  createGrid(): void;
+  drawGrid(shaderProgram: IShaderProgram): void;
 }

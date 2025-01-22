@@ -1,4 +1,4 @@
-import { IShaderProgram, IStaticMesh } from "@/interfaces/engine_interfaces";
+import { IShaderProgram, IStaticMesh } from "@/interfaces/EngineInterfaces";
 
 export class StaticMesh implements IStaticMesh {
   gl: WebGLRenderingContext;

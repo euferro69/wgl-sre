@@ -1,5 +1,6 @@
-import { IInputManager, IRenderer } from "@/interfaces/engine_interfaces";
+import { IInputManager, IRenderer, IWorld } from "@/interfaces/EngineInterfaces";
 import { Log, setFps } from "../utils/Overlays";
+import { World } from "@/classes/World";
 
 export class Renderer implements IRenderer {
   canvas: HTMLCanvasElement;
@@ -7,12 +8,21 @@ export class Renderer implements IRenderer {
   inputManager: IInputManager;
   lastTime: number; // Last frame time for FPS calculation
 
-  constructor(canvas: HTMLCanvasElement, gl: WebGLRenderingContext, inputManager: IInputManager) {
+  // Experimental ---------------------------------------
+  loadedWorld: IWorld | null; // Holds the currently loaded world
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    gl: WebGLRenderingContext,
+    inputManager: IInputManager,
+    world: IWorld) {
     this.canvas = canvas;
     this.gl = gl;
     this.inputManager = inputManager;
 
     this.lastTime = 0;
+
+    this.loadedWorld = world; // Initializes an empty world
 
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
@@ -38,7 +48,7 @@ export class Renderer implements IRenderer {
 
   load(): void {
     // Add loading of objects here
-    Log("Loading... (TODO) -> load()", "#ff0", 5, true);
+    Log("Loading... (TODO)", "#ff0", 5, true);
   }
 
   update(): void {
@@ -52,6 +62,7 @@ export class Renderer implements IRenderer {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // TODO draw more stuff here
+    this.loadedWorld?.draw();
   }
 
   render(): void {

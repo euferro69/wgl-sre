@@ -1,4 +1,4 @@
-import { IInputManager } from "@/interfaces/engine_interfaces";
+import { IInputManager } from "@/interfaces/EngineInterfaces";
 import { Log } from "@/utils/Overlays";
 
 export class InputManager implements IInputManager {

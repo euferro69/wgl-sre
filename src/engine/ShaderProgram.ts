@@ -1,5 +1,6 @@
-import { IShaderProgram } from "@/interfaces/engine_interfaces";
+import { IShaderProgram } from "@/interfaces/EngineInterfaces";
 import { Log } from "@/utils/Overlays";
+import { vec3, vec4 } from "gl-matrix";
 
 export class ShaderProgram implements IShaderProgram{
     private gl: WebGLRenderingContext;
@@ -95,12 +96,12 @@ export class ShaderProgram implements IShaderProgram{
       this.gl.uniform1f(location, value);
     }
   
-    setUniform3fv(name: string, value: Float32Array): void {
+    setUniform3fv(name: string, value: vec3): void {
       const location = this.getUniformLocation(name);
       this.gl.uniform3fv(location, value);
     }
   
-    setUniform4fv(name: string, value: Float32Array): void {
+    setUniform4fv(name: string, value: vec4): void {
       const location = this.getUniformLocation(name);
       this.gl.uniform4fv(location, value);
     }

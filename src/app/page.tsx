@@ -1,17 +1,18 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import FpsOverlay from "@/components/FpsOverlay";
 import LogOverlay from "@/components/LogOverlay";
+// Engine
 import { InputManager } from "@/engine/InputManager";
 import { Renderer } from "@/engine/Renderer";
 import { ShaderProgram } from "@/engine/ShaderProgram";
-import { useEffect, useRef } from "react";
-
 import { vertexShaderSource } from "../shaders/vertexShader";
 import { fragmentShaderSource } from "../shaders/fragmentShader";
-import { Log } from "@/utils/Overlays";
 import { playAudio } from "@/utils/Audio";
 import { Button } from "@mui/material";
+import { Camera } from "@/classes/Camera";
+import { World } from "@/classes/World";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -21,14 +22,22 @@ export default function Home() {
     const canvas = canvasRef.current;
 
     if (canvas) {
+      // WebGL Coontext
       const gl = setupGL(canvas);
+      // Initialize input
       const inputManager = new InputManager(canvas);
+      // Compile Shaders
       const defaultShaderProgram = new ShaderProgram(
         gl,
         vertexShaderSource,
         fragmentShaderSource
       );
-      const renderer = new Renderer(canvas, gl, inputManager);
+
+      // Create the default World
+      const world = new World(gl); // TODO -> In the future you will be able to load the world from a file)
+
+      // Initialize the Renderer
+      const renderer = new Renderer(canvas, gl, inputManager, world);
       renderer.start();
     }
   });
