@@ -81,50 +81,14 @@ export class World implements IWorld {
 
     // Axis lines (X=red, Y=green, Z=blue)
     vertices.push(
-      -gridSize,
-      0,
-      0,
-      gridSize,
-      0,
-      0, // X-axis
-      0,
-      -gridSize,
-      0,
-      0,
-      gridSize,
-      0, // Y-axis
-      0,
-      0,
-      -gridSize,
-      0,
-      0,
-      gridSize // Z-axis
+      -gridSize,0,0,gridSize,0,0, // X-axis
+      0,-gridSize,0,0,gridSize,0, // Y-axis
+      0,0,-gridSize,0,0,gridSize // Z-axis
     );
     colors.push(
-      1,
-      0,
-      0,
-      1,
-      1,
-      0,
-      0,
-      1, // X-axis red
-      0,
-      1,
-      0,
-      1,
-      0,
-      1,
-      0,
-      1, // Y-axis green
-      0,
-      0,
-      1,
-      1,
-      0,
-      0,
-      1,
-      1 // Z-axis blue
+      1,0,0,1,1,0,0,1, // X-axis red
+      0,1,0,1,0,1,0,1, // Y-axis green
+      0,0,1,1,0,0,1,1 // Z-axis blue
     );
 
     this.gridVertices = new Float32Array(vertices);

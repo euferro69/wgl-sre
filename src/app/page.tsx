@@ -13,6 +13,7 @@ import { playAudio } from "@/utils/Audio";
 import { Button } from "@mui/material";
 import { Camera } from "@/classes/Camera";
 import { World } from "@/classes/World";
+import { vec3 } from "gl-matrix";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,6 +36,9 @@ export default function Home() {
 
       // Create the default World
       const world = new World(gl); // TODO -> In the future you will be able to load the world from a file)
+      world.addCamera(
+        new Camera("perspective")
+      );
 
       // Initialize the Renderer
       const renderer = new Renderer(canvas, gl, inputManager, world);
