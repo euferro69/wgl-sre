@@ -1,6 +1,5 @@
 import { IInputManager, IRenderer } from "@/interfaces/engine_interfaces";
 import { Log, setFps } from "../utils/Overlays";
-import { exit } from "process";
 
 export class Renderer implements IRenderer {
   canvas: HTMLCanvasElement;
@@ -8,9 +7,9 @@ export class Renderer implements IRenderer {
   inputManager: IInputManager;
   lastTime: number; // Last frame time for FPS calculation
 
-  constructor(canvas: HTMLCanvasElement, inputManager: IInputManager) {
+  constructor(canvas: HTMLCanvasElement, gl: WebGLRenderingContext, inputManager: IInputManager) {
     this.canvas = canvas;
-    this.gl = this.setupGL();
+    this.gl = gl;
     this.inputManager = inputManager;
 
     this.lastTime = 0;
@@ -24,18 +23,6 @@ export class Renderer implements IRenderer {
 
     this.load();
     this.render();
-  }
-
-  setupGL(): WebGLRenderingContext {
-    const gl = this.canvas.getContext("webgl");
-    if (!gl) {
-      throw new Error("WebGL not supported");
-    }
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set clear color
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    return gl;
   }
 
   resizeCanvas(): void {

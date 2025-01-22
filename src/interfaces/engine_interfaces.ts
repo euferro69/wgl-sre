@@ -9,9 +9,6 @@ export interface IRenderer {
   // Method to start the rendering loop
   start(): void;
 
-  // Method to initialize and setup WebGL context
-  setupGL(): WebGLRenderingContext;
-
   // Method to resize the canvas and adjust WebGL viewport
   resizeCanvas(): void;
 
@@ -45,6 +42,13 @@ export interface IInputManager {
 export interface IShaderProgram {
   // Method to use the shader program in WebGL
   use(): void;
+
+  // Methods used for shader compilation process
+  createShader(type: GLenum, source: string): WebGLShader;
+  createProgram(
+    vertexShader: WebGLShader,
+    fragmentShader: WebGLShader
+  ): WebGLProgram;
 
   // Method to get the attribute location from the shader program
   getAttributeLocation(name: string): number;

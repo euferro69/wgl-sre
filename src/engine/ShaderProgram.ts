@@ -16,7 +16,7 @@ export class ShaderProgram implements IShaderProgram{
     }
   
     // Compile a shader (vertex or fragment)
-    private createShader(type: GLenum, source: string): WebGLShader {
+    createShader(type: GLenum, source: string): WebGLShader {
       const shader = this.gl.createShader(type);
       if (!shader) {
         throw new Error(`Unable to create shader of type: ${type}`);
@@ -35,7 +35,7 @@ export class ShaderProgram implements IShaderProgram{
     }
   
     // Link vertex and fragment shaders into a program
-    private createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram {
+    createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram {
       const program = this.gl.createProgram();
       if (!program) {
         throw new Error("Unable to create WebGL program");
