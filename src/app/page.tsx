@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 
 import { vertexShaderSource } from "../shaders/vertexShader";
 import { fragmentShaderSource } from "../shaders/fragmentShader";
+import { Log } from "@/utils/Overlays";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,11 +33,14 @@ export default function Home() {
       const gl = setupGL(canvas);
       // Engine
       const inputManager = new InputManager(canvas);
+
+      Log("Compiling Shaders...", "#fff", 2, true);
       const shaderProgram = new ShaderProgram(
         gl,
         vertexShaderSource,
         fragmentShaderSource
       );
+      Log("Shaders Compiled Successfully!", "#0f0", 2, true);
       const renderer = new Renderer(canvas, gl, inputManager);
       renderer.start();
     }

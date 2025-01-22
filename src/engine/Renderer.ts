@@ -38,7 +38,7 @@ export class Renderer implements IRenderer {
 
   load(): void {
     // Add loading of objects here
-    Log("Loading... (TODO) -> load()", "#ff0");
+    Log("Loading... (TODO) -> load()", "#ff0", 5, true);
   }
 
   update(): void {

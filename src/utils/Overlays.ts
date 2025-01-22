@@ -1,14 +1,19 @@
 export function Log(
   text: string,
   color: string = "#0ff",
-  displayTime: number = 2.0
+  displayTime: number = 2.0,
+  appendEnd: boolean = false
 ) {
   const log = document.getElementById("log-overlay");
 
   const textElem = document.createElement("div");
   textElem.style.color = color;
   textElem.innerHTML = text;
-  log?.appendChild(textElem);
+  if (appendEnd) {
+    log?.appendChild(textElem);
+  } else {
+    log?.prepend(textElem);
+  }
   // remove from parent
   setTimeout(() => {
     log?.removeChild(textElem);

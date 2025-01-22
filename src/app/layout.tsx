@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WGL SRE Engine",
+  title: "SRE Engine (WebGL)",
   description: "WebGL Small Rendering Engine",
 };
 
