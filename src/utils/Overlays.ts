@@ -6,7 +6,7 @@ export function Log(
   const log = document.getElementById("log-overlay");
 
   const textElem = document.createElement("div");
-  textElem.className = `text-[${color}] text-sm`;
+  textElem.style.color = color;
   textElem.innerHTML = text;
   log?.appendChild(textElem);
   // remove from parent

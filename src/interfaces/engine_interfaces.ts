@@ -1,9 +1,16 @@
-export interface IWebGLCanvas {
+export interface IRenderer {
+  // WebGL API requirements
   canvas: HTMLCanvasElement;
   gl: WebGLRenderingContext;
+  inputManager: IInputManager;
+  // Last frame time for FPS calculation
+  lastTime: number;
+
+  // Method to start the rendering loop
+  start(): void;
 
   // Method to initialize and setup WebGL context
-  setupGL(): void;
+  setupGL(): WebGLRenderingContext;
 
   // Method to resize the canvas and adjust WebGL viewport
   resizeCanvas(): void;
@@ -14,8 +21,25 @@ export interface IWebGLCanvas {
   // Method to update logic (could be used for animation)
   update(): void;
 
-  // Method to render the scene
-  render(): void;
+  // Method to render (draw) the scene
+  draw(): void;
+}
+
+export interface IInputManager {
+  canvas: HTMLCanvasElement;
+  // Input state tracking (keyboard and mouse)
+  inputState: {
+    keys: Record<string, boolean>;
+    mouse: { x: number; y: number; isDown: boolean };
+  };
+
+  // Method to bind input event listeners
+  bindInputHandlers(): void;
+
+  isKeyPressed(keyCode: string): boolean;
+
+  // Method to process user input
+  processInput(deltaTime: number): void;
 }
 
 export interface IShaderProgram {
@@ -42,27 +66,4 @@ export interface IShaderProgram {
 
   // Method to clean up the shader program
   delete(): void;
-}
-
-export interface IRenderer {
-  // The WebGLCanvas object (used for rendering and updating)
-  webglCanvas: IWebGLCanvas;
-
-  // Last frame time for FPS calculation
-  lastTime: number;
-
-  // Input state tracking (keyboard and mouse)
-  inputState: {
-    keys: Record<string, boolean>;
-    mouse: { x: number; y: number; isDown: boolean };
-  };
-
-  // Method to start the rendering loop
-  start(): void;
-
-  // Method to process user input
-  processInput(deltaTime: number): void;
-
-  // Method to bind input event listeners
-  bindInputHandlers(): void;
 }
