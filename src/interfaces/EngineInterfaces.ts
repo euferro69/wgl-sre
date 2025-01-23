@@ -51,7 +51,12 @@ export interface IShaderProgram {
 import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
 
 export interface IStaticMesh {
-  attributes: VertexAttributeDefinition[]; // Attributes describing the vertex data structure
+  gl: WebGLRenderingContext,
+    vertices: Float32Array,
+    attributes: VertexAttributeDefinition[],
+    count: number,
+    shaderProgram: IShaderProgram,
+    mode: GLenum;
 
   draw(): void;
   // Update the vertex data and recreate the buffer

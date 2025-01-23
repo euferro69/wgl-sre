@@ -1,4 +1,5 @@
 import { IShaderProgram, IStaticMesh } from "@/interfaces/EngineInterfaces";
+import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
 
 export class StaticMesh implements IStaticMesh {
   gl: WebGLRenderingContext;
@@ -19,14 +20,7 @@ export class StaticMesh implements IStaticMesh {
   constructor(
     gl: WebGLRenderingContext,
     vertices: Float32Array,
-    attributes: {
-      name: string;
-      size: number;
-      type: GLenum;
-      normalized: boolean;
-      stride: number;
-      offset: number;
-    }[],
+    attributes: VertexAttributeDefinition[],
     count: number,
     shaderProgram: IShaderProgram,
     mode: GLenum = gl.TRIANGLES

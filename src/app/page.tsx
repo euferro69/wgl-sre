@@ -67,19 +67,6 @@ export default function Home() {
       <FpsOverlay />
       <LogOverlay />
 
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10">
-        <Button
-          variant="contained"
-          color="warning"
-          startIcon=""
-          onClick={() => {
-            playAudio("/audio/ci-3-91252.mp3");
-          }}
-        >
-          Play Audio Test
-        </Button>
-      </div>
-
       <canvas
         ref={canvasRef}
         id="webgl-canvas"

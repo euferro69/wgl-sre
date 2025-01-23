@@ -9,7 +9,7 @@ export default function EngineHeader() {
                 <button className="px-2 py-1 mr-2 hover:bg-slate-600">View</button>
                 <button className="px-2 py-1 mr-2 hover:bg-slate-600">Help</button>
             </div>
-            <div className="flex flex-row w-full bg-gray-700 p-2">
+            <div className="flex flex-row w-full bg-[#333] p-2">
                 <Avatar alt="Blue Engine" src="/favicon.ico" sx={{ width: 25, height: 25 }} className="mr-2" />
                 <div className="w-full h-full flex align-middle">Blue Engine</div>
             </div>
