@@ -12,6 +12,9 @@ export class World implements IWorld {
   // Grid data
   gridVertices: Float32Array;
   gridColors: Float32Array;
+  // Grid params
+  gridSize: number = 10; // Size of the grid (10x10 squares)
+  gridColor: number[] = [0.5, 0.5, 0.5, 1.0]; // Default grid line color
 
   constructor(gl: WebGLRenderingContext) {
     this.gl = gl;
@@ -62,28 +65,25 @@ export class World implements IWorld {
 
   // Create the grid data
   createGrid(): void {
-    const gridSize = 10; // Size of the grid (10x10 squares)
-    const gridColor = [0.5, 0.5, 0.5, 1.0]; // Default grid line color
 
     const vertices: number[] = [];
     const colors: number[] = [];
 
     // Generate grid lines
-    for (let i = -gridSize; i <= gridSize; i++) {
+    for (let i = -this.gridSize; i <= this.gridSize; i++) {
       // Vertical lines (Z-axis)
-      vertices.push(i, 0, -gridSize, i, 0, gridSize);
-      colors.push(...gridColor, ...gridColor);
+      vertices.push(i, 0, -this.gridSize, i, 0, this.gridSize);
+      colors.push(...this.gridColor, ...this.gridColor);
 
       // Horizontal lines (X-axis)
-      vertices.push(-gridSize, 0, i, gridSize, 0, i);
-      colors.push(...gridColor, ...gridColor);
+      vertices.push(-this.gridSize, 0, i, this.gridSize, 0, i);
+      colors.push(...this.gridColor, ...this.gridColor);
     }
-
-    // Axis lines (X=red, Y=green, Z=blue)
+    // Axis lines (X=red, Y=green, Z=blue) for visual debugging
     vertices.push(
-      -gridSize,0,0,gridSize,0,0, // X-axis
-      0,-gridSize,0,0,gridSize,0, // Y-axis
-      0,0,-gridSize,0,0,gridSize // Z-axis
+      -this.gridSize,0,0,this.gridSize,0,0,  // X-axis
+      0,-this.gridSize,0,0,this.gridSize,0,  // Y-axis
+      0,0,-this.gridSize,0,0,this.gridSize   // Z-axis
     );
     colors.push(
       1,0,0,1,1,0,0,1, // X-axis red

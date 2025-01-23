@@ -13,8 +13,8 @@ export function Log(
   textElem.style.color = color;
   textElem.innerHTML = text;
   const textElem2 = document.createElement("div");
-  textElem.style.color = color;
-  textElem.innerHTML = text;
+  textElem2.style.color = color;
+  textElem2.innerHTML = text;
 
   if (showOnLogOverlay) {
     if (appendEndOnOverlay) {
