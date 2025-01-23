@@ -61,7 +61,7 @@ The goal is to create an abstraction layer that allows reusable components and f
 
 ### **Refactored Class Relationships**
 
-### 2. **ShaderProgram Class**
+### 1. **ShaderProgram Class**
 
 This wraps shader compilation and provides methods for setting uniforms.
 
@@ -90,7 +90,7 @@ export interface IShaderProgram {
 
 ---
 
-### 3. **StaticMesh Class**
+### 2. **StaticMesh Class**
 
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
@@ -116,7 +116,7 @@ export interface IStaticMesh {
 
 ---
 
-### 4. **Camera**
+### 3. **Camera**
 
 The camera manages the projection and view matrices.
 
@@ -176,7 +176,9 @@ const mesh = new StaticMesh(gl, vertices, attributes, shaderProgram);
 // Render loop
 function render() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  mesh.draw(camera); // Mesh uses camera's matrices
+
+  mesh.draw(); // Mesh uses camera's matrices
+
   requestAnimationFrame(render);
 }
 
@@ -189,9 +191,9 @@ render();
 This refactored architecture creates a clear separation of concerns:
 
 - **ShaderProgram**: Manages shaders and uniforms.
+- **Renderer**: Manages the rendering loop and update object properties in the world.
 - **StaticMesh**: Handles geometry.
 - **Camera**: Manages view and projection matrices.
-- **Object3D**: Provides common transformation logic.
 
 # Graphics Programming
 
