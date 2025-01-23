@@ -90,7 +90,17 @@ export interface IShaderProgram {
 
 ---
 
-### 2. **StaticMesh Class**
+### 2. **Renderer Class**
+
+### 3. **StaticMesh Class**
+
+The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
+
+```jsx
+
+```
+
+---
 
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
@@ -116,7 +126,7 @@ export interface IStaticMesh {
 
 ---
 
-### 3. **Camera**
+### 4. **Camera**
 
 The camera manages the projection and view matrices.
 
