@@ -27,7 +27,7 @@ export function Log(
   engineConsole?.appendChild(textElem2);
   if (engineConsole) {
     if (engineConsole.childElementCount > 300) {
-      engineConsole.removeChild(engineConsole.lastChild as ChildNode)
+      engineConsole.removeChild(engineConsole.firstChild as ChildNode)
     }
   }
 

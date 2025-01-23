@@ -1,10 +1,18 @@
-import { Avatar } from "@mui/material";
+import { Avatar, Button, Tooltip } from "@mui/material";
 
 export default function EngineHeader() {
     return (
-        <div className="flex flex-row absolute top-0 w-full bg-gray-700 p-2">
-            <Avatar alt="Blue Engine" src="/favicon.ico" sx={{ width: 25, height: 25 }} className="mr-2" />
-            <div className="w-full h-full flex align-middle">Blue Engine</div>
+        <div className="absolute top-0 flex flex-col w-full">
+            <div className="flex flex-row">
+                <Tooltip title="File actions"><button className="px-2 py-1 mr-2 hover:bg-slate-600">File</button></Tooltip>
+                <button className="px-2 py-1 mr-2 hover:bg-slate-600">Edit</button>
+                <button className="px-2 py-1 mr-2 hover:bg-slate-600">View</button>
+                <button className="px-2 py-1 mr-2 hover:bg-slate-600">Help</button>
+            </div>
+            <div className="flex flex-row w-full bg-gray-700 p-2">
+                <Avatar alt="Blue Engine" src="/favicon.ico" sx={{ width: 25, height: 25 }} className="mr-2" />
+                <div className="w-full h-full flex align-middle">Blue Engine</div>
+            </div>
         </div>
     );
 }
