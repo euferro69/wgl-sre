@@ -1,5 +1,5 @@
-import { mat4, vec4 } from "gl-matrix";
-import { IStaticMesh, IWorld } from "@/interfaces/EngineInterfaces";
+import { mat4, vec3, vec4 } from "gl-matrix";
+import { IDirectionalLight, ILight, IStaticMesh, IWorld } from "@/interfaces/EngineInterfaces";
 import { ICamera } from "@/interfaces/EngineInterfaces";
 import { IShaderProgram } from "@/interfaces/EngineInterfaces";
 import { Log } from "@/utils/Logging";
@@ -12,6 +12,8 @@ export class World implements IWorld {
   staticMeshes: IStaticMesh[];
   cameras: ICamera[];
   activeCamera: ICamera | null;
+  directionalLight: IDirectionalLight | null;
+  lights: ILight[];
   // Default Shader
   shaderProgram: ShaderProgram;
   // Grid
@@ -29,6 +31,8 @@ export class World implements IWorld {
     this.staticMeshes = [];
     this.cameras = [];
     this.activeCamera = null;
+    this.directionalLight = null;
+    this.lights = [];
     // Shader
     this.shaderProgram = shaderProgram;
     // Grid
@@ -38,6 +42,15 @@ export class World implements IWorld {
     this.colorBuffer = gl.createBuffer();
 
     this.createGrid();
+  }
+
+  setDirectionalLight(newDirectionalLight: IDirectionalLight): void {
+    this.directionalLight = newDirectionalLight;
+    this.shaderProgram.setUniform3fv("u_dirLightDirection", newDirectionalLight.direction as vec3);
+  }
+
+  addLight(light: ILight): void {
+    this.lights.push(light);
   }
 
   setGridSize(newSize: number) {
