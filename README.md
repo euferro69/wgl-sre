@@ -24,7 +24,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-# WebGL SRE (Small Rendering Engine)
+# Blue Engine (WebGL)
 
 This is the documentation to a WebGL Small Rendering Engine created by Breno de Arruda Ferro
 
