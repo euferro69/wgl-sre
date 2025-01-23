@@ -26,7 +26,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 # Blue Engine (WebGL)
 
-This is the documentation to a WebGL Small Rendering Engine created by Breno de Arruda Ferro
+This is the documentation to a WebGL small rendering engine called Blue Engine created by Breno de Arruda Ferro
 
 The purpose of this engine is to teach and help other people that also want to learn graphics programming to see the pain points that a learner go through when coding an engine from scratch.
 
