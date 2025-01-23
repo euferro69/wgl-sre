@@ -220,6 +220,10 @@ This refactored architecture creates a clear separation of concerns:
 - **StaticMesh**: Handles geometry.
 - **Camera**: Manages view and projection matrices.
 
+---
+
+### **Directional Light**
+
 To use your DirectionalLight class and add it to the world while calculating lighting in the shader, you need to break the task into several steps:
 
 Define your light class (DirectionLight): You already have the DirectionalLight class that represents a directional light source. This will need to be used to create the actual light object in your world scene.
