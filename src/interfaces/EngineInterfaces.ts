@@ -11,7 +11,7 @@ export interface IRenderer {
 
   start(): void; // Method to start the rendering loop
   resizeCanvas(): void; // Method to resize the canvas and adjust WebGL viewport
-  loadWorld(newWorld: IWorld): void // Changes the world to render at runtime
+  loadWorld(newWorld: IWorld): void; // Changes the world to render at runtime
   // Render Loop
   load(): void; // Method to load shaders and objects into WebGL
   update(): void; // Method to update logic (could be used for animation)
@@ -20,7 +20,8 @@ export interface IRenderer {
 
 export interface IInputManager {
   canvas: HTMLCanvasElement;
-  inputState: { // Input state tracking (keyboard and mouse)
+  inputState: {
+    // Input state tracking (keyboard and mouse)
     keys: Record<string, boolean>;
     mouse: { x: number; y: number; isDown: boolean };
   };
@@ -52,12 +53,12 @@ export interface IShaderProgram {
 }
 
 export interface IStaticMesh {
-  gl: WebGLRenderingContext,
-    vertices: Float32Array,
-    attributes: VertexAttributeDefinition[],
-    vertexCount: number,
-    shaderProgram: IShaderProgram,
-    mode: GLenum;
+  gl: WebGLRenderingContext;
+  vertices: Float32Array;
+  attributes: VertexAttributeDefinition[];
+  vertexCount: number;
+  shaderProgram: IShaderProgram;
+  mode: GLenum;
 
   draw(): void;
   // Update the vertex data and recreate the buffer
@@ -107,6 +108,7 @@ export interface ICamera {
 
 export interface IWorld {
   gl: WebGLRenderingContext;
+  canvas: HTMLCanvasElement;
 
   // Objects in the world
   staticMeshes: IStaticMesh[];
@@ -130,6 +132,7 @@ export interface IWorld {
   addCamera(camera: ICamera): void;
   setActiveCamera(camera: ICamera): void;
 
+  load(): void;
   draw(): void;
   createGrid(): void;
   drawGrid(): void;

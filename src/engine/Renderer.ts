@@ -5,6 +5,7 @@ import {
 } from "@/interfaces/EngineInterfaces";
 import { Log, setFps } from "../utils/Logging";
 import { World } from "@/classes/World";
+import { Camera } from "@/classes/Camera";
 
 export class Renderer implements IRenderer {
   canvas: HTMLCanvasElement;
@@ -67,6 +68,13 @@ export class Renderer implements IRenderer {
       Log("Error: KILL PROCESS", "#F66");
     }
 
+    // TEST -------------------------------------------------------
+
+    this.loadedWorld?.setActiveCamera(this.loadedWorld?.activeCamera as Camera);
+    // this.loadedWorld?.activeCamera?.moveForward(0.1);
+    this.loadedWorld?.activeCamera?.rotate([0, 1, 0], 0.01);
+
+    // END TEST ---------------------------------------------------
   }
 
   draw(): void {
@@ -88,6 +96,8 @@ export class Renderer implements IRenderer {
 
     const fps = Math.round(1 / deltaTime); // FPS calculation
     setFps(fps, deltaTime);
+
+    this.loadedWorld?.activeCamera?.autoAdjustAspect(this.canvas);
 
     // Render loop
     this.inputManager.processInput(deltaTime); // Input processing

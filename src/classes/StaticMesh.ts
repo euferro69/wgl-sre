@@ -23,7 +23,7 @@ export class StaticMesh implements IStaticMesh {
     attributes: VertexAttributeDefinition[],
     count: number,
     shaderProgram: IShaderProgram,
-    mode: GLenum = gl.TRIANGLE_STRIP
+    mode: GLenum = gl.TRIANGLES
   ) {
     this.gl = gl;
     this.vertices = vertices;

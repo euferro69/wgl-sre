@@ -15,6 +15,7 @@ import EngineConsole from "@/components/EngineConsole";
 import EngineHeader from "@/components/EngineHeader";
 import { StaticMesh } from "@/classes/StaticMesh";
 import { cubeVertexData_colored, cubeVertexData_white } from "@/assets/cube_model";
+import { Log } from "@/utils/Logging";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -61,14 +62,19 @@ export default function Home() {
         36,
         defaultShaderProgram
       );
+      // Cameras
+      const camera1 = new Camera("perspective");
+      const camera2 = new Camera("perspective", [0,5,2]);
 
       // Create the default World
-      const world = new World(gl, defaultShaderProgram); // TODO -> In the future you will be able to load the world from a file)
-      world.addCamera(new Camera("perspective"));
-      world.setGridSize(100);
+      const world = new World(gl, defaultShaderProgram, canvas); // TODO -> In the future you will be able to load the world from a file)
+      world.addCamera(camera1);
+      world.addCamera(camera2);
+      world.setGridSize(50);
       world.setGridDefaultColor([0.15, 0.15, 0.15, 1.0]);
       world.createGrid();
       world.addStaticMesh(cube);
+      world.logWorldState();
 
       // Initialize the Renderer
       const renderer = new Renderer(canvas, gl, inputManager, world);

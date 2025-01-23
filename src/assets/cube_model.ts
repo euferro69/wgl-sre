@@ -37,41 +37,72 @@ export const cubeVertexData_colored = new Float32Array([
 ]);
 
 export const cubeVertexData_white = new Float32Array([
-  // Front face (all white)
-  -1.0, -1.0,  1.0,  1.0, 1.0, 1.0, // Bottom-left, white
-   1.0, -1.0,  1.0,  1.0, 1.0, 1.0, // Bottom-right, white
-   1.0,  1.0,  1.0,  1.0, 1.0, 1.0, // Top-right, white
-  -1.0,  1.0,  1.0,  1.0, 1.0, 1.0, // Top-left, white
+  // **Top Face** (2 triangles)
+  // First triangle
+  -1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-right
+   1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
 
-  // Back face (all white)
-  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-left, white
-   1.0, -1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-right, white
-   1.0,  1.0, -1.0,  1.0, 1.0, 1.0, // Top-right, white
-  -1.0,  1.0, -1.0,  1.0, 1.0, 1.0, // Top-left, white
+  // Second triangle
+  -1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-left
+  -1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
 
-  // Top face (all white)
-  -1.0,  1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-left, white
-   1.0,  1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-right, white
-   1.0,  1.0,  1.0,  1.0, 1.0, 1.0, // Top-right, white
-  -1.0,  1.0,  1.0,  1.0, 1.0, 1.0, // Top-left, white
+  // **Front Face** (Side Face 1) (2 triangles)
+  // First triangle
+  -1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Bottom-right
+   1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
 
-  // Bottom face (all white)
-  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-left, white
-   1.0, -1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-right, white
-   1.0, -1.0,  1.0,  1.0, 1.0, 1.0, // Top-right, white
-  -1.0, -1.0,  1.0,  1.0, 1.0, 1.0, // Top-left, white
+  // Second triangle
+  -1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-left
+  -1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
 
-  // Right face (all white)
-   1.0, -1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-left, white
-   1.0,  1.0, -1.0,  1.0, 1.0, 1.0, // Top-left, white
-   1.0,  1.0,  1.0,  1.0, 1.0, 1.0, // Top-right, white
-   1.0, -1.0,  1.0,  1.0, 1.0, 1.0, // Bottom-right, white
+  // **Back Face** (Side Face 2) (2 triangles)
+  // First triangle
+  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-right
+   1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Top-right
 
-  // Left face (all white)
-  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0, // Bottom-left, white
-  -1.0,  1.0, -1.0,  1.0, 1.0, 1.0, // Top-left, white
-  -1.0,  1.0,  1.0,  1.0, 1.0, 1.0, // Top-right, white
-  -1.0, -1.0,  1.0,  1.0, 1.0, 1.0, // Bottom-right, white
+  // Second triangle
+  -1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Top-left
+  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Top-right
+
+  // **Right Face** (Side Face 3) (2 triangles)
+  // First triangle
+   1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Top-left
+   1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
+
+  // Second triangle
+   1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Bottom-right
+   1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
+
+  // **Left Face** (Side Face 4) (2 triangles)
+  // First triangle
+  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+  -1.0,  1.0, -1.0,  1.0, 1.0, 1.0,  // Top-left
+  -1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
+
+  // Second triangle
+  -1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Bottom-right
+  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+  -1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
+
+  // **Bottom Face** (2 triangles)
+  // First triangle
+  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-right
+   1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
+
+  // Second triangle
+  -1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Bottom-left
+  -1.0, -1.0, -1.0,  1.0, 1.0, 1.0,  // Bottom-left
+   1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
 ]);
+
 
 

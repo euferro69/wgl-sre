@@ -7,6 +7,7 @@ import { ShaderProgram } from "@/engine/ShaderProgram";
 
 export class World implements IWorld {
   gl: WebGLRenderingContext;
+  canvas: HTMLCanvasElement;
   // Objects in the world
   staticMeshes: IStaticMesh[];
   cameras: ICamera[];
@@ -21,8 +22,10 @@ export class World implements IWorld {
   vertexBuffer: WebGLBuffer;
   colorBuffer: WebGLBuffer;
 
-  constructor(gl: WebGLRenderingContext, shaderProgram: ShaderProgram) {
+  constructor(gl: WebGLRenderingContext, shaderProgram: ShaderProgram, canvas: HTMLCanvasElement) {
     this.gl = gl;
+    this.canvas = canvas;
+    // World Objects
     this.staticMeshes = [];
     this.cameras = [];
     this.activeCamera = null;
@@ -35,7 +38,6 @@ export class World implements IWorld {
     this.colorBuffer = gl.createBuffer();
 
     this.createGrid();
-    this.logWorldState();
   }
 
   setGridSize(newSize: number) {
@@ -51,31 +53,43 @@ export class World implements IWorld {
     this.staticMeshes.push(mesh);
   }
 
-  // Add a camera to the world
-  addCamera(camera: ICamera): void {
-    this.cameras.push(camera);
-    if (!this.activeCamera) {
-      this.activeCamera = camera; // Set the first added camera as active by default
-    }
-  }
-
   // Set the active camera
   setActiveCamera(camera: ICamera): void {
     if (this.cameras.includes(camera)) {
       this.activeCamera = camera;
+      camera.autoAdjustAspect(this.canvas);
+
+    // Set camera matrices in the shader
+    this.shaderProgram.setUniformMatrix4fv(
+      "u_viewMatrix",
+      camera.getViewMatrix() as Float32Array
+    )
+    this.shaderProgram.setUniformMatrix4fv(
+      "u_projectionMatrix",
+      camera.getProjectionMatrix() as Float32Array
+    );
     } else {
-      throw new Error("Camera not found in the world.");
+      Log("Error: Camera not found in the world.", "#F66");
     }
   }
+
+  // Add a camera to the world
+  addCamera(camera: ICamera): void {
+    this.cameras.push(camera);
+    if (!this.activeCamera) {
+      this.setActiveCamera(camera); // Set the first added camera as active by default
+    }
+  }
+
+  load(): void {}
 
   // Draw all static meshes in the world
   draw(): void {
     if (!this.activeCamera) {
       Log("WARNING: No active camera set.", "#ff0");
     }
+
     this.shaderProgram.use();
-    const viewMatrix = this.activeCamera?.getViewMatrix();
-    const projectionMatrix = this.activeCamera?.getProjectionMatrix();
 
     this.drawGrid();
 
@@ -146,15 +160,6 @@ export class World implements IWorld {
     this.gl.vertexAttribPointer(colorLocation, 4, this.gl.FLOAT, false, 0, 0);
     this.gl.enableVertexAttribArray(colorLocation);
 
-    this.shaderProgram.setUniformMatrix4fv(
-      "u_viewMatrix",
-      this.activeCamera?.getViewMatrix() as Float32Array
-    );
-    this.shaderProgram.setUniformMatrix4fv(
-      "u_projectionMatrix",
-      this.activeCamera?.getProjectionMatrix() as Float32Array
-    );
-
     // Draw the grid
     this.gl.drawArrays(this.gl.LINES, 0, this.gridVertices.length / 3);
 
@@ -163,10 +168,10 @@ export class World implements IWorld {
   }
 
   logWorldState(): void {
-    Log("World State: -------------------------------------------", "", 6, true);
-    Log(`Number of Static Meshes: ${this.staticMeshes.length}`,     "", 6, true);
-    Log(`Number of Cameras:       ${this.cameras.length}`,          "", 6, true);
-    Log(`Active Camera:           ${this.activeCamera}`,            "", 6, true);
+    Log("World State: -------------------------------------------", "#0FF", 6, true);
+    Log(`Number of Static Meshes: ${this.staticMeshes.length}`,     "#0FF", 6, true);
+    Log(`Number of Cameras:       ${this.cameras.length}`,          "#0FF", 6, true);
+    Log(`Active Camera:           ${this.activeCamera}`,            "#0FF", 6, true);
   }
 
   destroy(): void {
