@@ -17,7 +17,7 @@ export class Camera implements ICamera {
 
   constructor(
     mode: "perspective" | "orthographic" = "perspective",
-    position: vec3 = vec3.fromValues(5, 0, 5),
+    position: vec3 = vec3.fromValues(5, 5, 5),
     target: vec3 = vec3.fromValues(0, 0, 0),
     up: vec3 = vec3.fromValues(0, 1, 0),
     fov: number = 90,

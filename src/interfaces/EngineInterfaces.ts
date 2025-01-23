@@ -1,3 +1,6 @@
+import { mat4, vec3, vec4 } from "gl-matrix";
+import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
+
 export interface IRenderer {
   canvas: HTMLCanvasElement;
   gl: WebGLRenderingContext;
@@ -48,8 +51,6 @@ export interface IShaderProgram {
   delete(): void; // Method to clean up the shader program
 }
 
-import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
-
 export interface IStaticMesh {
   gl: WebGLRenderingContext,
     vertices: Float32Array,
@@ -67,8 +68,6 @@ export interface IStaticMesh {
   // Clean up WebGL resources
   delete(): void;
 }
-
-import { mat4, vec3, vec4 } from "gl-matrix";
 
 export interface ICamera {
   // Matrices
@@ -108,17 +107,33 @@ export interface ICamera {
 
 export interface IWorld {
   gl: WebGLRenderingContext;
+
+  // Objects in the world
   staticMeshes: IStaticMesh[];
   cameras: ICamera[];
   activeCamera: ICamera | null;
+
+  shaderProgram: IShaderProgram;
+
+  // Grid data
   gridVertices: Float32Array;
   gridColors: Float32Array;
+  gridSize: number;
+  gridColor: number[];
+  vertexBuffer: WebGLBuffer | null;
+  colorBuffer: WebGLBuffer | null;
+
+  setGridSize(newSize: number): void;
+  setGridDefaultColor(newColor: vec4): void;
 
   addStaticMesh(mesh: IStaticMesh): void;
   addCamera(camera: ICamera): void;
   setActiveCamera(camera: ICamera): void;
+
   draw(): void;
   createGrid(): void;
-  drawGrid(shaderProgram: IShaderProgram): void;
+  drawGrid(): void;
   logWorldState(): void;
+
+  destroy(): void;
 }

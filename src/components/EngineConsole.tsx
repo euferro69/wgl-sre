@@ -35,8 +35,8 @@ export default function EngineConsole() {
           id="engine-console"
           className={
             open
-              ? "w-full overflow-y-auto bg-[#222] flex flex-col max-h-52 p-4 transition-all"
-              : "w-full overflow-y-auto bg-[#222] flex flex-col max-h-0 p-0 transition-all"
+              ? "w-full overflow-y-auto bg-[#222] flex flex-col max-h-52 p-4 transition-all scrollbar-thin scrollbar-thumb-[#555] scrollbar-track-[#333]"
+              : "w-full overflow-y-auto bg-[#222] flex flex-col max-h-0 p-0 transition-all scrollbar-thin scrollbar-thumb-[#555] scrollbar-track-[#333]"
           }
         ></div>
       </div>
