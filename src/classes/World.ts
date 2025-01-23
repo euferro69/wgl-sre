@@ -1,7 +1,9 @@
-import { mat4 } from "gl-matrix";
+import { mat4, vec4 } from "gl-matrix";
 import { IStaticMesh, IWorld } from "@/interfaces/EngineInterfaces";
 import { ICamera } from "@/interfaces/EngineInterfaces";
 import { IShaderProgram } from "@/interfaces/EngineInterfaces";
+import { Log } from "@/utils/Logging";
+import { ShaderProgram } from "@/engine/ShaderProgram";
 
 export class World implements IWorld {
   gl: WebGLRenderingContext;
@@ -9,22 +11,39 @@ export class World implements IWorld {
   staticMeshes: IStaticMesh[];
   cameras: ICamera[];
   activeCamera: ICamera | null;
-  // Grid data
+  // Default Shader
+  shaderProgram: ShaderProgram;
+  // Grid
   gridVertices: Float32Array;
   gridColors: Float32Array;
-  // Grid params
   gridSize: number = 10; // Size of the grid (10x10 squares)
   gridColor: number[] = [0.5, 0.5, 0.5, 1.0]; // Default grid line color
+  vertexBuffer: WebGLBuffer;
+  colorBuffer: WebGLBuffer;
 
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: WebGLRenderingContext, shaderProgram: ShaderProgram) {
     this.gl = gl;
     this.staticMeshes = [];
     this.cameras = [];
     this.activeCamera = null;
+    // Shader
+    this.shaderProgram = shaderProgram;
+    // Grid
     this.gridVertices = new Float32Array();
     this.gridColors = new Float32Array();
+    this.vertexBuffer = gl.createBuffer();
+    this.colorBuffer = gl.createBuffer();
 
     this.createGrid();
+    this.logWorldState();
+  }
+
+  setGridSize(newSize: number) {
+    this.gridSize = newSize;
+  }
+
+  setGridDefaultColor(newColor: vec4) {
+    this.gridColor = [...newColor];
   }
 
   // Add a static mesh to the world
@@ -52,11 +71,13 @@ export class World implements IWorld {
   // Draw all static meshes in the world
   draw(): void {
     if (!this.activeCamera) {
-      throw new Error("No active camera set.");
+      Log("WARNING: No active camera set.", "#ff0");
     }
+    this.shaderProgram.use();
+    const viewMatrix = this.activeCamera?.getViewMatrix();
+    const projectionMatrix = this.activeCamera?.getProjectionMatrix();
 
-    const viewMatrix = this.activeCamera.getViewMatrix();
-    const projectionMatrix = this.activeCamera.getProjectionMatrix();
+    this.drawGrid();
 
     this.staticMeshes.forEach((mesh) => {
       mesh.draw();
@@ -65,7 +86,6 @@ export class World implements IWorld {
 
   // Create the grid data
   createGrid(): void {
-
     const vertices: number[] = [];
     const colors: number[] = [];
 
@@ -81,14 +101,14 @@ export class World implements IWorld {
     }
     // Axis lines (X=red, Y=green, Z=blue) for visual debugging
     vertices.push(
-      -this.gridSize,0,0,this.gridSize,0,0,  // X-axis
-      0,-this.gridSize,0,0,this.gridSize,0,  // Y-axis
-      0,0,-this.gridSize,0,0,this.gridSize   // Z-axis
+      -this.gridSize, 0, 0, this.gridSize, 0, 0,  // X-axis
+      0, -this.gridSize, 0, 0, this.gridSize, 0,  // Y-axis
+      0, 0, -this.gridSize, 0, 0, this.gridSize   // Z-axis
     );
     colors.push(
-      1,0,0,1,1,0,0,1, // X-axis red
-      0,1,0,1,0,1,0,1, // Y-axis green
-      0,0,1,1,0,0,1,1 // Z-axis blue
+      1, 0, 0, 1, 1, 0, 0, 1, // X-axis red
+      0, 1, 0, 1, 0, 1, 0, 1, // Y-axis green
+      0, 0, 1, 1, 0, 0, 1, 1 // Z-axis blue
     );
 
     this.gridVertices = new Float32Array(vertices);
@@ -96,60 +116,44 @@ export class World implements IWorld {
   }
 
   // Draw the grid for the world
-  drawGrid(shaderProgram: IShaderProgram): void {
-    // Create buffers
-    const vertexBuffer = this.gl.createBuffer();
-    const colorBuffer = this.gl.createBuffer();
-
-    if (!vertexBuffer || !colorBuffer) {
-      throw new Error("Failed to create buffers for the grid.");
-    }
-
+  drawGrid(): void {
     // Bind and set vertex data
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexBuffer);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
       this.gridVertices,
       this.gl.STATIC_DRAW
     );
-
     // Bind and set color data
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, colorBuffer);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffer);
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
       this.gridColors,
       this.gl.STATIC_DRAW
     );
 
-    // Use shader program
-    shaderProgram.use();
-
     // Bind vertex buffer and set attribute pointer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexBuffer);
-    const positionLocation = shaderProgram.getAttributeLocation("aPosition");
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+    const positionLocation = this.shaderProgram.getAttributeLocation("a_position");
     this.gl.vertexAttribPointer(
-      positionLocation,
-      3,
-      this.gl.FLOAT,
-      false,
-      0,
-      0
+      positionLocation, 3, this.gl.FLOAT, false, 0, 0
     );
     this.gl.enableVertexAttribArray(positionLocation);
 
     // Bind color buffer and set attribute pointer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, colorBuffer);
-    const colorLocation = shaderProgram.getAttributeLocation("aColor");
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.colorBuffer);
+    const colorLocation = this.shaderProgram.getAttributeLocation("a_color");
     this.gl.vertexAttribPointer(colorLocation, 4, this.gl.FLOAT, false, 0, 0);
     this.gl.enableVertexAttribArray(colorLocation);
 
-    // Set up model, view, and projection matrices
-    const modelMatrix = mat4.create();
-    const viewMatrix = this.activeCamera?.getViewMatrix();
-    const projectionMatrix = this.activeCamera?.getProjectionMatrix();
-
-    shaderProgram.setUniformMatrix4fv("uViewMatrix", viewMatrix!);
-    shaderProgram.setUniformMatrix4fv("uProjectionMatrix", projectionMatrix!);
+    this.shaderProgram.setUniformMatrix4fv(
+      "u_viewMatrix",
+      this.activeCamera?.getViewMatrix() as Float32Array
+    );
+    this.shaderProgram.setUniformMatrix4fv(
+      "u_projectionMatrix",
+      this.activeCamera?.getProjectionMatrix() as Float32Array
+    );
 
     // Draw the grid
     this.gl.drawArrays(this.gl.LINES, 0, this.gridVertices.length / 3);
@@ -157,4 +161,18 @@ export class World implements IWorld {
     // Cleanup
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
   }
+
+  logWorldState(): void {
+    Log("World State: -------------------------------------------", "", 6, true);
+    Log(`Number of Static Meshes: ${this.staticMeshes.length}`,     "", 6, true);
+    Log(`Number of Cameras:       ${this.cameras.length}`,          "", 6, true);
+    Log(`Active Camera:           ${this.activeCamera}`,            "", 6, true);
+  }
+
+  destroy(): void {
+    this.gl.deleteBuffer(this.vertexBuffer);
+    this.gl.deleteBuffer(this.colorBuffer);
+    // Additional cleanup logic
+  }
+  
 }

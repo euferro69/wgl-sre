@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full m-0 overflow-hidden text-white font-mono`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full m-0 text-white font-mono overflow-y-scroll scrollbar scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200`}
       >
         {children}
       </body>

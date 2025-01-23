@@ -120,4 +120,5 @@ export interface IWorld {
   draw(): void;
   createGrid(): void;
   drawGrid(shaderProgram: IShaderProgram): void;
+  logWorldState(): void;
 }

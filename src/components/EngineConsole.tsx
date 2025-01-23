@@ -35,7 +35,7 @@ export default function EngineConsole() {
           id="engine-console"
           className={
             open
-              ? "w-full overflow-y-auto bg-[#222] flex flex-col max-h-52 p-2 transition-all"
+              ? "w-full overflow-y-auto bg-[#222] flex flex-col max-h-52 p-4 transition-all"
               : "w-full overflow-y-auto bg-[#222] flex flex-col max-h-0 p-0 transition-all"
           }
         ></div>

@@ -27,8 +27,10 @@ export default function Home() {
     if (canvas) {
       // WebGL Coontext
       const gl = setupGL(canvas);
+      
       // Initialize input
       const inputManager = new InputManager(canvas);
+
       // Compile Shaders
       const defaultShaderProgram = new ShaderProgram(
         gl,
@@ -37,7 +39,7 @@ export default function Home() {
       );
 
       // Create the default World
-      const world = new World(gl); // TODO -> In the future you will be able to load the world from a file)
+      const world = new World(gl, defaultShaderProgram); // TODO -> In the future you will be able to load the world from a file)
       world.addCamera(
         new Camera("perspective")
       );

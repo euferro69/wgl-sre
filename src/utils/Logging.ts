@@ -1,14 +1,14 @@
 export function Log(
   text: string,
-  color: string = "#0ff",
+  color: string = "#fff",
   displayTime: number = 2.0,
   appendEndOnOverlay: boolean = false,
   showOnLogOverlay: boolean = true,
 ) {
+  // Log elements
   const logOverlay = document.getElementById("log-overlay");
   const engineConsole = document.getElementById("engine-console");
   
-
   const textElem = document.createElement("div");
   textElem.style.color = color;
   textElem.innerHTML = text;
