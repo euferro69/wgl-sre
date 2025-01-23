@@ -1,5 +1,5 @@
 import { IInputManager, IRenderer, IWorld } from "@/interfaces/EngineInterfaces";
-import { Log, setFps } from "../utils/Overlays";
+import { Log, setFps } from "../utils/Logging";
 import { World } from "@/classes/World";
 
 export class Renderer implements IRenderer {

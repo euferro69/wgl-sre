@@ -1,5 +1,5 @@
 import { IInputManager } from "@/interfaces/EngineInterfaces";
-import { Log } from "@/utils/Overlays";
+import { Log } from "@/utils/Logging";
 
 export class InputManager implements IInputManager {
   canvas: HTMLCanvasElement;

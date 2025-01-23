@@ -1,5 +1,5 @@
 import { IShaderProgram } from "@/interfaces/EngineInterfaces";
-import { Log } from "@/utils/Overlays";
+import { Log } from "@/utils/Logging";
 import { vec3, vec4 } from "gl-matrix";
 
 export class ShaderProgram implements IShaderProgram{

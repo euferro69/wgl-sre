@@ -14,6 +14,8 @@ import { Button } from "@mui/material";
 import { Camera } from "@/classes/Camera";
 import { World } from "@/classes/World";
 import { vec3 } from "gl-matrix";
+import EngineConsole from "@/components/EngineConsole";
+import EngineHeader from "@/components/EngineHeader";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -60,6 +62,8 @@ export default function Home() {
 
   return (
     <>
+      <EngineHeader />
+
       <FpsOverlay />
       <LogOverlay />
 
@@ -80,6 +84,8 @@ export default function Home() {
         id="webgl-canvas"
         className="h-full w-full"
       ></canvas>
+
+      <EngineConsole />
     </>
   );
 }

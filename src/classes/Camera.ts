@@ -100,7 +100,6 @@ export class Camera implements ICamera {
     this.updateProjectionMatrix();
   }
 
-
   // Get the projection matrix
   getProjectionMatrix(): mat4 {
     return this.projectionMatrix;
