@@ -1,4 +1,8 @@
-import { IInputManager, IRenderer, IWorld } from "@/interfaces/EngineInterfaces";
+import {
+  IInputManager,
+  IRenderer,
+  IWorld,
+} from "@/interfaces/EngineInterfaces";
 import { Log, setFps } from "../utils/Logging";
 import { World } from "@/classes/World";
 
@@ -14,7 +18,8 @@ export class Renderer implements IRenderer {
     canvas: HTMLCanvasElement,
     gl: WebGLRenderingContext,
     inputManager: IInputManager,
-    world: IWorld) {
+    world: IWorld
+  ) {
     this.canvas = canvas;
     this.gl = gl;
     this.inputManager = inputManager;
@@ -43,6 +48,7 @@ export class Renderer implements IRenderer {
       this.gl.drawingBufferWidth,
       this.gl.drawingBufferHeight
     );
+    this.loadedWorld?.activeCamera?.autoAdjustAspect(this.canvas);
   }
 
   loadWorld(newWorld: IWorld): void {
@@ -58,8 +64,9 @@ export class Renderer implements IRenderer {
   update(): void {
     // Add update logic if needed
     if (this.inputManager.isKeyPressed("KeyK")) {
-      Log("KILL PROCESS", "#F00");
+      Log("Error: KILL PROCESS", "#F66");
     }
+
   }
 
   draw(): void {

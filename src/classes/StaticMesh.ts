@@ -15,7 +15,7 @@ export class StaticMesh implements IStaticMesh {
   }[];
   shaderProgram: IShaderProgram;
   mode: GLenum;
-  count: number;
+  vertexCount: number;
 
   constructor(
     gl: WebGLRenderingContext,
@@ -23,7 +23,7 @@ export class StaticMesh implements IStaticMesh {
     attributes: VertexAttributeDefinition[],
     count: number,
     shaderProgram: IShaderProgram,
-    mode: GLenum = gl.TRIANGLES
+    mode: GLenum = gl.TRIANGLE_STRIP
   ) {
     this.gl = gl;
     this.vertices = vertices;
@@ -31,7 +31,7 @@ export class StaticMesh implements IStaticMesh {
     this.vertexBuffer = null;
     this.shaderProgram = shaderProgram;
     this.mode = mode;
-    this.count = count;
+    this.vertexCount = count;
 
     this.createBuffer();
   }
@@ -79,7 +79,7 @@ export class StaticMesh implements IStaticMesh {
     });
 
     // Draw the mesh
-    this.gl.drawArrays(this.mode, 0, this.count);
+    this.gl.drawArrays(this.mode, 0, this.vertexCount);
 
     // Disable attributes after drawing
     this.attributes.forEach((attr) => {

@@ -106,9 +106,9 @@ export class World implements IWorld {
       0, 0, -this.gridSize, 0, 0, this.gridSize   // Z-axis
     );
     colors.push(
-      1, 0, 0, 1, 1, 0, 0, 1, // X-axis red
-      0, 1, 0, 1, 0, 1, 0, 1, // Y-axis green
-      0, 0, 1, 1, 0, 0, 1, 1 // Z-axis blue
+      1, 0, 0, 1, 1, 0.6, 0.6, 1, // X-axis red
+      0, 1, 0, 1, 0.6, 1, 0.6, 1, // Y-axis green
+      0, 0, 1, 1, 0.2, 0.8, 1, 1 // Z-axis blue
     );
 
     this.gridVertices = new Float32Array(vertices);

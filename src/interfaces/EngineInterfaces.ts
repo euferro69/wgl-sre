@@ -55,7 +55,7 @@ export interface IStaticMesh {
   gl: WebGLRenderingContext,
     vertices: Float32Array,
     attributes: VertexAttributeDefinition[],
-    count: number,
+    vertexCount: number,
     shaderProgram: IShaderProgram,
     mode: GLenum;
 
