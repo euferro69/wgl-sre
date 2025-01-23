@@ -41,133 +41,51 @@ Here's a suggested architecture:
 The goal is to create an abstraction layer that allows reusable components and facilitates interaction between the **camera**, **meshes**, and **shaders**.
 
 ### **Key Concepts:**
-
-1. **Object Class**:
     
-    A base class that contains shared logic for objects in the scene (e.g., transformation matrices, shader references).
-    
-2. **StaticMesh**:
+1. **StaticMesh**:
     
     Handles geometry (vertices, attributes) and draws the mesh.
     
-3. **ShaderProgram**:
+2. **ShaderProgram**:
     
     A reusable program wrapper that compiles shaders, stores uniform/attribute locations, and provides methods to set uniforms (like projection matrices).
     
-4. **Camera**:
+3. **Camera**:
     
     The camera will maintain its own matrices but will send them to a `ShaderProgram` when needed.
     
-5. **Scene or Renderer Class** (Optional):
+4. **Renderer**:
     
-    Manages the camera, lights, meshes, and their interactions.
-    
-
+    Manages the world containing cameras, lights, meshes, and their interactions.
 ---
 
 ### **Refactored Class Relationships**
-
-### 1. **Object3D Base Class**
-
-All drawable objects (like `StaticMesh`) and the `Camera` can inherit from this class.
-
-```jsx
-javascript
-CopyEdit
-class Object3D {
-  constructor() {
-    this.position = [0, 0, 0];
-    this.rotation = [0, 0, 0];
-    this.scale = [1, 1, 1];
-    this.modelMatrix = mat4.create();
-  }
-
-  // Update the model matrix based on position, rotation, and scale
-  updateModelMatrix() {
-    mat4.identity(this.modelMatrix);
-    mat4.translate(this.modelMatrix, this.modelMatrix, this.position);
-    mat4.rotateX(this.modelMatrix, this.modelMatrix, this.rotation[0]);
-    mat4.rotateY(this.modelMatrix, this.modelMatrix, this.rotation[1]);
-    mat4.rotateZ(this.modelMatrix, this.modelMatrix, this.rotation[2]);
-    mat4.scale(this.modelMatrix, this.modelMatrix, this.scale);
-  }
-}
-
-```
-
----
 
 ### 2. **ShaderProgram Class**
 
 This wraps shader compilation and provides methods for setting uniforms.
 
 ```jsx
-javascript
-CopyEdit
-class ShaderProgram {
-  constructor(gl, vertexShaderSource, fragmentShaderSource) {
-    this.gl = gl;
-    this.program = this.createProgram(vertexShaderSource, fragmentShaderSource);
-    this.uniformLocations = {};
-  }
+export interface IShaderProgram {
+  // Method to use the shader program in WebGL
+  use(): void;
 
-  // Compile and link shaders
-  createProgram(vsSource, fsSource) {
-    const vs = this.compileShader(vsSource, this.gl.VERTEX_SHADER);
-    const fs = this.compileShader(fsSource, this.gl.FRAGMENT_SHADER);
+  // Methods used for shader compilation process
+  createShader(type: GLenum, source: string): WebGLShader;
+  createProgram(
+    vertexShader: WebGLShader,
+    fragmentShader: WebGLShader
+  ): WebGLProgram;
 
-    const program = this.gl.createProgram();
-    this.gl.attachShader(program, vs);
-    this.gl.attachShader(program, fs);
-    this.gl.linkProgram(program);
+  getAttributeLocation(name: string): number;
+  getUniformLocation(name: string): WebGLUniformLocation;
+  setUniformMatrix4fv(name: string, value: mat4): void;
+  setUniform1f(name: string, value: number): void;
+  setUniform3fv(name: string, value: vec3): void;
+  setUniform4fv(name: string, value: vec4): void;
 
-    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.error("Program link error: ", this.gl.getProgramInfoLog(program));
-      return null;
-    }
-    return program;
-  }
-
-  compileShader(source, type) {
-    const shader = this.gl.createShader(type);
-    this.gl.shaderSource(shader, source);
-    this.gl.compileShader(shader);
-
-    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      console.error(
-        "Shader compile error: ",
-        this.gl.getShaderInfoLog(shader)
-      );
-      return null;
-    }
-    return shader;
-  }
-
-  // Use the program
-  use() {
-    this.gl.useProgram(this.program);
-  }
-
-  // Cache and set uniform locations
-  setUniform(name, type, value) {
-    if (!(name in this.uniformLocations)) {
-      this.uniformLocations[name] = this.gl.getUniformLocation(
-        this.program,
-        name
-      );
-    }
-    const location = this.uniformLocations[name];
-
-    if (type === "mat4") {
-      this.gl.uniformMatrix4fv(location, false, value);
-    } else if (type === "vec3") {
-      this.gl.uniform3fv(location, value);
-    } else if (type === "float") {
-      this.gl.uniform1f(location, value);
-    }
-  }
+  delete(): void; // Method to clean up the shader program
 }
-
 ```
 
 ---
@@ -177,118 +95,67 @@ class ShaderProgram {
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
 ```jsx
-javascript
-CopyEdit
-class StaticMesh extends Object3D {
-  constructor(gl, vertices, attributes, shaderProgram) {
-    super();
-    this.gl = gl;
-    this.vertices = vertices;
-    this.attributes = attributes;
-    this.shaderProgram = shaderProgram;
+export interface IStaticMesh {
+  gl: WebGLRenderingContext,
+    vertices: Float32Array,
+    attributes: VertexAttributeDefinition[],
+    count: number,
+    shaderProgram: IShaderProgram,
+    mode: GLenum;
 
-    // Create vertex buffer
-    this.buffer = this.createBuffer(vertices);
-  }
+  draw(): void;
+  // Update the vertex data and recreate the buffer
+  updateVertices(newVertices: Float32Array): void;
+  setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
+  setMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
 
-  createBuffer(vertices) {
-    const buffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      new Float32Array(vertices),
-      this.gl.STATIC_DRAW
-    );
-    return buffer;
-  }
-
-  draw(camera) {
-    this.shaderProgram.use();
-
-    // Pass matrices to the shader
-    this.shaderProgram.setUniform("u_projectionMatrix", "mat4", camera.getProjectionMatrix());
-    this.shaderProgram.setUniform("u_viewMatrix", "mat4", camera.getViewMatrix());
-    this.shaderProgram.setUniform("u_modelMatrix", "mat4", this.modelMatrix);
-
-    // Bind vertex buffer and set attributes
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-    this.attributes.forEach(({ name, size, type, normalized, stride, offset }) => {
-      const location = this.gl.getAttribLocation(this.shaderProgram.program, name);
-      this.gl.vertexAttribPointer(location, size, type, normalized, stride, offset);
-      this.gl.enableVertexAttribArray(location);
-    });
-
-    // Draw the object
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertices.length / 6);
-  }
+  // Clean up WebGL resources
+  delete(): void;
 }
-
 ```
 
 ---
 
-### 4. **Camera Class**
+### 4. **Camera**
 
 The camera manages the projection and view matrices.
 
 ```jsx
-javascript
-CopyEdit
-class Camera extends Object3D {
-  constructor() {
-    super();
-    this.mode = "perspective";
-    this.aspect = 16 / 9;
-    this.fov = 45;
-    this.near = 0.1;
-    this.far = 100;
+export interface ICamera {
+  // Matrices
+  projectionMatrix: mat4;
+  viewMatrix: mat4;
+  // Parameters
+  position: vec3;
+  target: vec3;
+  up: vec3;
+  fov: number; // Field of View in degrees (for perspective mode)
+  aspect: number; // Aspect ratio
+  near: number; // Near clipping plane
+  far: number; // Far clipping plane
+  mode: "perspective" | "orthographic";
 
-    this.projectionMatrix = mat4.create();
-    this.viewMatrix = mat4.create();
-    this.updateProjectionMatrix();
-    this.updateViewMatrix();
-  }
+  // Methods for setting camera properties
+  setMode(mode: "perspective" | "orthographic"): void;
+  setAspect(aspect: number): void;
+  setPosition(position: vec3): void;
+  setTarget(target: vec3): void;
+  setFov(fov: number): void; // (for perspective mode only)
 
-  setMode(mode) {
-    this.mode = mode;
-    this.updateProjectionMatrix();
-  }
+  getProjectionMatrix(): mat4;
+  getViewMatrix(): mat4;
+  getViewProjectionMatrix(): mat4; // Get the combined view-projection matrix
 
-  updateProjectionMatrix() {
-    if (this.mode === "perspective") {
-      mat4.perspective(
-        this.projectionMatrix,
-        (this.fov * Math.PI) / 180,
-        this.aspect,
-        this.near,
-        this.far
-      );
-    } else if (this.mode === "orthographic") {
-      mat4.ortho(
-        this.projectionMatrix,
-        -10,
-        10,
-        -10,
-        10,
-        this.near,
-        this.far
-      );
-    }
-  }
+  rotate(axis: vec3, angle: number): void;
+  moveForward(amount: number): void;
+  moveRight(amount: number): void;
+  moveUp(amount: number): void;
+  roll(angle: number): void;
+  lookAt(target: vec3): void;
 
-  updateViewMatrix() {
-    mat4.lookAt(this.viewMatrix, this.position, this.target, [0, 1, 0]);
-  }
-
-  getProjectionMatrix() {
-    return this.projectionMatrix;
-  }
-
-  getViewMatrix() {
-    return this.viewMatrix;
-  }
+  autoAdjustAspect(canvas: HTMLCanvasElement): void;
+  logCameraState(): void;
 }
-
 ```
 
 ---
