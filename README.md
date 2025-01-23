@@ -92,15 +92,30 @@ export interface IShaderProgram {
 
 ### 2. **Renderer Class**
 
-### 3. **StaticMesh Class**
-
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
 ```jsx
+export interface IRenderer {
+  canvas: HTMLCanvasElement;
+  gl: WebGLRenderingContext;
+  inputManager: IInputManager;
 
+  lastTime: number; // Last frame time for FPS calculation
+  loadedWorld: IWorld | null; // Loaded world to draw
+
+  start(): void; // Method to start the rendering loop
+  resizeCanvas(): void; // Method to resize the canvas and adjust WebGL viewport
+  loadWorld(newWorld: IWorld): void // Changes the world to render at runtime
+  // Render Loop
+  load(): void; // Method to load shaders and objects into WebGL
+  update(): void; // Method to update logic (could be used for animation)
+  draw(): void;
+}
 ```
 
 ---
+
+### 2. **StaticMesh Class**
 
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
