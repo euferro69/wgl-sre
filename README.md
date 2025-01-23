@@ -65,7 +65,7 @@ The goal is to create an abstraction layer that allows reusable components and f
 
 This wraps shader compilation and provides methods for setting uniforms.
 
-```jsx
+```ts
 export interface IShaderProgram {
   // Method to use the shader program in WebGL
   use(): void;
@@ -94,7 +94,7 @@ export interface IShaderProgram {
 
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
-```jsx
+```ts
 export interface IRenderer {
   canvas: HTMLCanvasElement;
   gl: WebGLRenderingContext;
@@ -119,7 +119,7 @@ export interface IRenderer {
 
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
-```jsx
+```ts
 export interface IStaticMesh {
     gl: WebGLRenderingContext,
     vertices: Float32Array,
@@ -145,7 +145,7 @@ export interface IStaticMesh {
 
 The camera manages the projection and view matrices.
 
-```jsx
+```ts
 export interface ICamera {
   // Matrices
   projectionMatrix: mat4;
@@ -187,7 +187,7 @@ export interface ICamera {
 
 ### **How It All Ties Together**
 
-```jsx
+```ts
 javascript
 CopyEdit
 const shaderProgram = new ShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
