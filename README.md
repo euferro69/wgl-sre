@@ -600,139 +600,7 @@ void main() {
 - **`varying`** is used to pass interpolated data (e.g., color, texture coordinates) from the vertex shader to the fragment shader.
 - With newer versions of GLSL, `varying` is replaced by `out` in vertex shaders and `in` in fragment shaders.
 - GLSL provides rich data types (`vec`, `mat`, `sampler`) and qualifiers (`uniform`, `attribute`, `in/out`) to control how data flows between shaders and the CPU.
-
-# Generalizes StaticMesh Class
-
-Here’s the updated version of the class named `StaticMesh`, designed to handle **2D and 3D geometries** with flexible vertex data and attributes.
-
----
-
-### **`StaticMesh` Class**
-
-```jsx
-export class StaticMesh {
-  constructor(
-    gl,
-    vertexShaderSource,
-    fragmentShaderSource,
-    vertices,
-    attributes,
-    drawingOptions = { mode: this.gl.TRIANGLES, count: 3 },
-    worldLocation = [0.0, 0.0, 0.0]
-  ) {
-    // GL
-    this.gl = gl;
-    this.program = this.createProgram(vertexShaderSource, fragmentShaderSource);
-
-    // Attributes
-    this.vertices = vertices;
-    this.buffer = this.createBuffer(vertices);
-    this.attributes = attributes;
-    this.setupAttributes(this.attributes);
-
-    // Drawing Options
-    this.drawingOptions = drawingOptions;
-
-    // Location
-    this.worldLocation = worldLocation; // World location [x, y, z]
-  }
-
-  createProgram(vsSource, fsSource) {
-    const vs = this.compileShader(vsSource, this.gl.VERTEX_SHADER);
-    const fs = this.compileShader(fsSource, this.gl.FRAGMENT_SHADER);
-
-    if (!vs || !fs) {
-      console.error("Shaders failed to compile.");
-      return null;
-    }
-
-    const program = this.gl.createProgram();
-    this.gl.attachShader(program, vs);
-    this.gl.attachShader(program, fs);
-    this.gl.linkProgram(program);
-
-    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.error(
-        "Program link error: " + this.gl.getProgramInfoLog(program)
-      );
-      return null;
-    }
-
-    return program;
-  }
-
-  compileShader(source, type) {
-    const shader = this.gl.createShader(type);
-    this.gl.shaderSource(shader, source);
-    this.gl.compileShader(shader);
-
-    // Check if shader compiled successfully
-    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      console.error(
-        "Shader compile error: " + this.gl.getShaderInfoLog(shader)
-      );
-      this.gl.deleteShader(shader); // Clean up in case of error
-      return null; // Return null if compile fails
-    }
-
-    return shader;
-  }
-
-  createBuffer(vertices) {
-    const buffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      new Float32Array(vertices),
-      this.gl.STATIC_DRAW
-    );
-    return buffer;
-  }
-
-  setupAttributes(attributes) {
-    this.gl.useProgram(this.program);
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-
-    attributes.forEach(({ name, size, type, normalized, stride, offset }) => {
-      const location = this.gl.getAttribLocation(this.program, name);
-      if (location === -1) {
-        console.warn(`Attribute "${name}" not found in shader program.`);
-        return;
-      }
-      this.gl.vertexAttribPointer(
-        location,
-        size,
-        type,
-        normalized,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(location);
-    });
-
-    const uLocation = this.gl.getUniformLocation(this.program, "u_location");
-    if (uLocation === null) {
-      console.warn('Uniform "u_location" not found in shader program.');
-    }
-
-    // Set the uniform value (world position of the object)
-    this.gl.uniform3fv(uLocation, new Float32Array(this.worldLocation));
-  }
-
-  update() {}
-
-  draw() {
-    this.setupAttributes(this.attributes);
-
-    // Draw the object
-    this.gl.drawArrays(this.drawingOptions.mode, 0, this.drawingOptions.count);
-  }
-}
-
-```
-
----
-
+  
 ### **How It Works**
 
 1. **Generalized Vertex Data**:
@@ -744,21 +612,6 @@ export class StaticMesh {
 
 ---
 
-### **Example: Drawing a Triangle**
-
-### Vertex Shader (`vertexShaderSource`)
-
-```glsl
-attribute vec3 a_position;
-attribute vec3 a_color;
-
-varying vec3 v_color;
-
-void main() {
-  gl_Position = vec4(a_position, 1.0);
-  v_color = a_color;
-}
-```
 
 ### Fragment Shader (`fragmentShaderSource`)
 
@@ -771,50 +624,6 @@ void main() {
   gl_FragColor = vec4(v_color, 1.0);
 }
 ```
-
-### JavaScript Code
-
-```jsx
-const canvas = document.getElementById('canvas');
-const gl = canvas.getContext('webgl');
-
-// Vertex and Fragment Shaders
-const vertexShaderSource = `...`;  // Insert the vertex shader here
-const fragmentShaderSource = `...`;  // Insert the fragment shader here
-
-// Vertex Data (Position + Color)
-const vertices = [
-  0.5,  0.5, 0.0,   1.0, 0.0, 0.0, // Top-right (Red)
-  0.5, -0.5, 0.0,   0.0, 1.0, 0.0, // Bottom-right (Green)
- -0.5, -0.5, 0.0,   0.0, 0.0, 1.0  // Bottom-left (Blue)
-];
-
-// Attribute Definitions
-const attributes = [
-  { name: 'a_position', size: 3, type: gl.FLOAT, normalized: false, stride: 6 * Float32Array.BYTES_PER_ELEMENT, offset: 0 },
-  { name: 'a_color',    size: 3, type: gl.FLOAT, normalized: false, stride: 6 * Float32Array.BYTES_PER_ELEMENT, offset: 3 * Float32Array.BYTES_PER_ELEMENT }
-];
-
-// Create and Draw the StaticMesh
-const triangle = new StaticMesh(gl, vertexShaderSource, fragmentShaderSource, vertices, attributes);
-triangle.draw(gl.TRIANGLES, 3);
-
-```
-
----
-
-### **Benefits of `StaticMesh`**
-
-- **Reusable for Any Geometry**:
-    - Define the vertex format once and reuse the class for triangles, quads, cubes, or custom 3D models.
-- **Flexible Attributes**:
-    - Supports custom layouts, such as position-only, position + color, position + texture coordinates, etc.
-- **Dynamic Rendering**:
-    - Easily change the draw mode (e.g., `TRIANGLES`, `LINES`, `POINTS`) by passing a different `mode` to `draw()`.
-
----
-
-This `StaticMesh` class is now a robust and reusable foundation for rendering 2D/3D geometries in WebGL!
 
 # Define Geometry (OpenGL)
 
@@ -899,7 +708,7 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 4. **Define Vertex Data**
     - Prepare the raw geometry data (e.g., positions, colors):
     
-    ```jsx
+    ```js
     const vertices = [
       // X, Y, Z, R, G, B
        0.5,  0.5, 0.0,   1.0, 0.0, 0.0,  // Top-right (Red)
@@ -911,7 +720,7 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 5. **Create and Bind a Buffer**
     - Upload the vertex data to a GPU buffer:
     
-    ```jsx
+    ```js
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -920,7 +729,7 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 6. **Set Up Attributes**
     - Define how to interpret the vertex data (e.g., positions and colors):
     
-    ```jsx
+    ```js
     const positionLocation = gl.getAttribLocation(program, 'a_position');
     gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
     gl.enableVertexAttribArray(positionLocation);
@@ -933,21 +742,19 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 7. **Use the Program**
     - Set the shader program as active:
     
-    ```jsx
+    ```js
     gl.useProgram(program);
     ```
     
 8. **Render the Geometry**
     - Draw the vertices using `gl.drawArrays`:
     
-    ```jsx
+    ```js
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Black background
     gl.clear(gl.COLOR_BUFFER_BIT);
     
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     ```
-    
-
 ---
 
 ### **Summary**
@@ -965,11 +772,7 @@ Here’s the simplified flow:
 
 ---
 
-### **Class Integration**
-
-The `StaticMesh` class provided earlier encapsulates all these steps for reusability. By following this flow, you can adapt it for any geometry, making it flexible for 2D or 3D rendering.
-
-# Does each object have to have its own shader?
+# Does Each Object Have to Have its Own Shader?
 
 Not necessarily! While each object **can** have its own shader if needed, you can reuse the same shader across multiple objects if they share similar rendering requirements. Here’s a breakdown to help you decide:
 
@@ -1076,8 +879,6 @@ triangle2.draw(gl.TRIANGLES, 3);
 - Use separate shaders when objects require fundamentally different visual effects.
 
 This approach ensures performance while maintaining flexibility!
-
-4o
 
 # Render Loop
 ![image](https://github.com/user-attachments/assets/d16e60c3-29b5-44fd-858e-8812db808386)
