@@ -106,6 +106,32 @@ export interface ICamera {
   logCameraState(): void;
 }
 
+export interface ILight {
+  // Common properties for all lights
+  color: [number, number, number]; // RGB color (values between 0 and 1)
+  intensity: number; // Intensity of the light (typically 0 to 1)
+
+  // Additional parameters (optional)
+  castShadows?: boolean; // Whether this light casts shadows or not (default = true)
+}
+export interface IDirectionalLight extends ILight {
+  direction?: [number, number, number]; // Direction vector (normalized)
+}
+export interface IPointLight extends ILight {
+  position?: [number, number, number]; // Position of the light in world space
+  // Attenuation properties
+  constantAttenuationFactor?: number; // Constant attenuation factor (default = 0.0)
+  linearAttenuationFactor?: number; // Linear attenuation factor (default = 0.0)
+  quadraticAttenuationFactor?: number; // Quadratic attenuation factor (default = 1.0)
+}
+export interface ISpotLight extends ILight {
+  position?: [number, number, number]; // Position of the light in world space
+  direction?: [number, number, number]; // Direction vector (normalized)
+  // Spotlight-specific properties
+  cutoffAngle?: number; // The angle of the spotlight's cone (in degrees)
+  outerCutoffAngle?: number; // The outer angle for the falloff (only for spotlights)
+}
+
 export interface IWorld {
   gl: WebGLRenderingContext;
   canvas: HTMLCanvasElement;
