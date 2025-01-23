@@ -3,15 +3,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Getting Started
 
 First, run the development server:
-
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -28,10 +21,6 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
@@ -52,261 +41,153 @@ Here's a suggested architecture:
 The goal is to create an abstraction layer that allows reusable components and facilitates interaction between the **camera**, **meshes**, and **shaders**.
 
 ### **Key Concepts:**
-
-1. **Object Class**:
     
-    A base class that contains shared logic for objects in the scene (e.g., transformation matrices, shader references).
-    
-2. **StaticMesh**:
+1. **StaticMesh**:
     
     Handles geometry (vertices, attributes) and draws the mesh.
     
-3. **ShaderProgram**:
+2. **ShaderProgram**:
     
     A reusable program wrapper that compiles shaders, stores uniform/attribute locations, and provides methods to set uniforms (like projection matrices).
     
-4. **Camera**:
+3. **Camera**:
     
     The camera will maintain its own matrices but will send them to a `ShaderProgram` when needed.
     
-5. **Scene or Renderer Class** (Optional):
+4. **Renderer**:
     
-    Manages the camera, lights, meshes, and their interactions.
-    
-
+    Manages the world containing cameras, lights, meshes, and their interactions.
 ---
 
 ### **Refactored Class Relationships**
 
-### 1. **Object3D Base Class**
-
-All drawable objects (like `StaticMesh`) and the `Camera` can inherit from this class.
-
-```jsx
-javascript
-CopyEdit
-class Object3D {
-  constructor() {
-    this.position = [0, 0, 0];
-    this.rotation = [0, 0, 0];
-    this.scale = [1, 1, 1];
-    this.modelMatrix = mat4.create();
-  }
-
-  // Update the model matrix based on position, rotation, and scale
-  updateModelMatrix() {
-    mat4.identity(this.modelMatrix);
-    mat4.translate(this.modelMatrix, this.modelMatrix, this.position);
-    mat4.rotateX(this.modelMatrix, this.modelMatrix, this.rotation[0]);
-    mat4.rotateY(this.modelMatrix, this.modelMatrix, this.rotation[1]);
-    mat4.rotateZ(this.modelMatrix, this.modelMatrix, this.rotation[2]);
-    mat4.scale(this.modelMatrix, this.modelMatrix, this.scale);
-  }
-}
-
-```
-
----
-
-### 2. **ShaderProgram Class**
+### 1. **ShaderProgram Class**
 
 This wraps shader compilation and provides methods for setting uniforms.
 
-```jsx
-javascript
-CopyEdit
-class ShaderProgram {
-  constructor(gl, vertexShaderSource, fragmentShaderSource) {
-    this.gl = gl;
-    this.program = this.createProgram(vertexShaderSource, fragmentShaderSource);
-    this.uniformLocations = {};
-  }
+```ts
+export interface IShaderProgram {
+  // Method to use the shader program in WebGL
+  use(): void;
 
-  // Compile and link shaders
-  createProgram(vsSource, fsSource) {
-    const vs = this.compileShader(vsSource, this.gl.VERTEX_SHADER);
-    const fs = this.compileShader(fsSource, this.gl.FRAGMENT_SHADER);
+  // Methods used for shader compilation process
+  createShader(type: GLenum, source: string): WebGLShader;
+  createProgram(
+    vertexShader: WebGLShader,
+    fragmentShader: WebGLShader
+  ): WebGLProgram;
 
-    const program = this.gl.createProgram();
-    this.gl.attachShader(program, vs);
-    this.gl.attachShader(program, fs);
-    this.gl.linkProgram(program);
+  getAttributeLocation(name: string): number;
+  getUniformLocation(name: string): WebGLUniformLocation;
+  setUniformMatrix4fv(name: string, value: mat4): void;
+  setUniform1f(name: string, value: number): void;
+  setUniform3fv(name: string, value: vec3): void;
+  setUniform4fv(name: string, value: vec4): void;
 
-    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.error("Program link error: ", this.gl.getProgramInfoLog(program));
-      return null;
-    }
-    return program;
-  }
-
-  compileShader(source, type) {
-    const shader = this.gl.createShader(type);
-    this.gl.shaderSource(shader, source);
-    this.gl.compileShader(shader);
-
-    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      console.error(
-        "Shader compile error: ",
-        this.gl.getShaderInfoLog(shader)
-      );
-      return null;
-    }
-    return shader;
-  }
-
-  // Use the program
-  use() {
-    this.gl.useProgram(this.program);
-  }
-
-  // Cache and set uniform locations
-  setUniform(name, type, value) {
-    if (!(name in this.uniformLocations)) {
-      this.uniformLocations[name] = this.gl.getUniformLocation(
-        this.program,
-        name
-      );
-    }
-    const location = this.uniformLocations[name];
-
-    if (type === "mat4") {
-      this.gl.uniformMatrix4fv(location, false, value);
-    } else if (type === "vec3") {
-      this.gl.uniform3fv(location, value);
-    } else if (type === "float") {
-      this.gl.uniform1f(location, value);
-    }
-  }
+  delete(): void; // Method to clean up the shader program
 }
-
 ```
 
 ---
 
-### 3. **StaticMesh Class**
+### 2. **Renderer Class**
 
 The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
 
-```jsx
-javascript
-CopyEdit
-class StaticMesh extends Object3D {
-  constructor(gl, vertices, attributes, shaderProgram) {
-    super();
-    this.gl = gl;
-    this.vertices = vertices;
-    this.attributes = attributes;
-    this.shaderProgram = shaderProgram;
+```ts
+export interface IRenderer {
+  canvas: HTMLCanvasElement;
+  gl: WebGLRenderingContext;
+  inputManager: IInputManager;
 
-    // Create vertex buffer
-    this.buffer = this.createBuffer(vertices);
-  }
+  lastTime: number; // Last frame time for FPS calculation
+  loadedWorld: IWorld | null; // Loaded world to draw
 
-  createBuffer(vertices) {
-    const buffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      new Float32Array(vertices),
-      this.gl.STATIC_DRAW
-    );
-    return buffer;
-  }
-
-  draw(camera) {
-    this.shaderProgram.use();
-
-    // Pass matrices to the shader
-    this.shaderProgram.setUniform("u_projectionMatrix", "mat4", camera.getProjectionMatrix());
-    this.shaderProgram.setUniform("u_viewMatrix", "mat4", camera.getViewMatrix());
-    this.shaderProgram.setUniform("u_modelMatrix", "mat4", this.modelMatrix);
-
-    // Bind vertex buffer and set attributes
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-    this.attributes.forEach(({ name, size, type, normalized, stride, offset }) => {
-      const location = this.gl.getAttribLocation(this.shaderProgram.program, name);
-      this.gl.vertexAttribPointer(location, size, type, normalized, stride, offset);
-      this.gl.enableVertexAttribArray(location);
-    });
-
-    // Draw the object
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertices.length / 6);
-  }
+  start(): void; // Method to start the rendering loop
+  resizeCanvas(): void; // Method to resize the canvas and adjust WebGL viewport
+  loadWorld(newWorld: IWorld): void // Changes the world to render at runtime
+  // Render Loop
+  load(): void; // Method to load shaders and objects into WebGL
+  update(): void; // Method to update logic (could be used for animation)
+  draw(): void;
 }
-
 ```
 
 ---
 
-### 4. **Camera Class**
+### 2. **StaticMesh Class**
+
+The `StaticMesh` only handles geometry and attributes. It references the `ShaderProgram` for rendering.
+
+```ts
+export interface IStaticMesh {
+    gl: WebGLRenderingContext,
+    vertices: Float32Array,
+    attributes: VertexAttributeDefinition[],
+    count: number,
+    shaderProgram: IShaderProgram,
+    mode: GLenum;
+    
+    draw(): void;
+    // Update the vertex data and recreate the buffer
+    updateVertices(newVertices: Float32Array): void;
+    setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
+    setMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
+    
+    // Clean up WebGL resources
+    delete(): void;
+}
+```
+
+---
+
+### 4. **Camera**
 
 The camera manages the projection and view matrices.
 
-```jsx
-javascript
-CopyEdit
-class Camera extends Object3D {
-  constructor() {
-    super();
-    this.mode = "perspective";
-    this.aspect = 16 / 9;
-    this.fov = 45;
-    this.near = 0.1;
-    this.far = 100;
+```ts
+export interface ICamera {
+  // Matrices
+  projectionMatrix: mat4;
+  viewMatrix: mat4;
+  // Parameters
+  position: vec3;
+  target: vec3;
+  up: vec3;
+  fov: number; // Field of View in degrees (for perspective mode)
+  aspect: number; // Aspect ratio
+  near: number; // Near clipping plane
+  far: number; // Far clipping plane
+  mode: "perspective" | "orthographic";
 
-    this.projectionMatrix = mat4.create();
-    this.viewMatrix = mat4.create();
-    this.updateProjectionMatrix();
-    this.updateViewMatrix();
-  }
+  // Methods for setting camera properties
+  setMode(mode: "perspective" | "orthographic"): void;
+  setAspect(aspect: number): void;
+  setPosition(position: vec3): void;
+  setTarget(target: vec3): void;
+  setFov(fov: number): void; // (for perspective mode only)
 
-  setMode(mode) {
-    this.mode = mode;
-    this.updateProjectionMatrix();
-  }
+  getProjectionMatrix(): mat4;
+  getViewMatrix(): mat4;
+  getViewProjectionMatrix(): mat4; // Get the combined view-projection matrix
 
-  updateProjectionMatrix() {
-    if (this.mode === "perspective") {
-      mat4.perspective(
-        this.projectionMatrix,
-        (this.fov * Math.PI) / 180,
-        this.aspect,
-        this.near,
-        this.far
-      );
-    } else if (this.mode === "orthographic") {
-      mat4.ortho(
-        this.projectionMatrix,
-        -10,
-        10,
-        -10,
-        10,
-        this.near,
-        this.far
-      );
-    }
-  }
+  rotate(axis: vec3, angle: number): void;
+  moveForward(amount: number): void;
+  moveRight(amount: number): void;
+  moveUp(amount: number): void;
+  roll(angle: number): void;
+  lookAt(target: vec3): void;
 
-  updateViewMatrix() {
-    mat4.lookAt(this.viewMatrix, this.position, this.target, [0, 1, 0]);
-  }
-
-  getProjectionMatrix() {
-    return this.projectionMatrix;
-  }
-
-  getViewMatrix() {
-    return this.viewMatrix;
-  }
+  autoAdjustAspect(canvas: HTMLCanvasElement): void;
+  logCameraState(): void;
 }
-
 ```
 
 ---
 
 ### **How It All Ties Together**
 
-```jsx
+```ts
 javascript
 CopyEdit
 const shaderProgram = new ShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
@@ -320,7 +201,9 @@ const mesh = new StaticMesh(gl, vertices, attributes, shaderProgram);
 // Render loop
 function render() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  mesh.draw(camera); // Mesh uses camera's matrices
+
+  mesh.draw(); // Mesh uses camera's matrices
+
   requestAnimationFrame(render);
 }
 
@@ -333,9 +216,9 @@ render();
 This refactored architecture creates a clear separation of concerns:
 
 - **ShaderProgram**: Manages shaders and uniforms.
+- **Renderer**: Manages the rendering loop and update object properties in the world.
 - **StaticMesh**: Handles geometry.
 - **Camera**: Manages view and projection matrices.
-- **Object3D**: Provides common transformation logic.
 
 # Graphics Programming
 
@@ -717,139 +600,7 @@ void main() {
 - **`varying`** is used to pass interpolated data (e.g., color, texture coordinates) from the vertex shader to the fragment shader.
 - With newer versions of GLSL, `varying` is replaced by `out` in vertex shaders and `in` in fragment shaders.
 - GLSL provides rich data types (`vec`, `mat`, `sampler`) and qualifiers (`uniform`, `attribute`, `in/out`) to control how data flows between shaders and the CPU.
-
-# Generalizes StaticMesh Class
-
-Here’s the updated version of the class named `StaticMesh`, designed to handle **2D and 3D geometries** with flexible vertex data and attributes.
-
----
-
-### **`StaticMesh` Class**
-
-```jsx
-export class StaticMesh {
-  constructor(
-    gl,
-    vertexShaderSource,
-    fragmentShaderSource,
-    vertices,
-    attributes,
-    drawingOptions = { mode: this.gl.TRIANGLES, count: 3 },
-    worldLocation = [0.0, 0.0, 0.0]
-  ) {
-    // GL
-    this.gl = gl;
-    this.program = this.createProgram(vertexShaderSource, fragmentShaderSource);
-
-    // Attributes
-    this.vertices = vertices;
-    this.buffer = this.createBuffer(vertices);
-    this.attributes = attributes;
-    this.setupAttributes(this.attributes);
-
-    // Drawing Options
-    this.drawingOptions = drawingOptions;
-
-    // Location
-    this.worldLocation = worldLocation; // World location [x, y, z]
-  }
-
-  createProgram(vsSource, fsSource) {
-    const vs = this.compileShader(vsSource, this.gl.VERTEX_SHADER);
-    const fs = this.compileShader(fsSource, this.gl.FRAGMENT_SHADER);
-
-    if (!vs || !fs) {
-      console.error("Shaders failed to compile.");
-      return null;
-    }
-
-    const program = this.gl.createProgram();
-    this.gl.attachShader(program, vs);
-    this.gl.attachShader(program, fs);
-    this.gl.linkProgram(program);
-
-    if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.error(
-        "Program link error: " + this.gl.getProgramInfoLog(program)
-      );
-      return null;
-    }
-
-    return program;
-  }
-
-  compileShader(source, type) {
-    const shader = this.gl.createShader(type);
-    this.gl.shaderSource(shader, source);
-    this.gl.compileShader(shader);
-
-    // Check if shader compiled successfully
-    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      console.error(
-        "Shader compile error: " + this.gl.getShaderInfoLog(shader)
-      );
-      this.gl.deleteShader(shader); // Clean up in case of error
-      return null; // Return null if compile fails
-    }
-
-    return shader;
-  }
-
-  createBuffer(vertices) {
-    const buffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      new Float32Array(vertices),
-      this.gl.STATIC_DRAW
-    );
-    return buffer;
-  }
-
-  setupAttributes(attributes) {
-    this.gl.useProgram(this.program);
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-
-    attributes.forEach(({ name, size, type, normalized, stride, offset }) => {
-      const location = this.gl.getAttribLocation(this.program, name);
-      if (location === -1) {
-        console.warn(`Attribute "${name}" not found in shader program.`);
-        return;
-      }
-      this.gl.vertexAttribPointer(
-        location,
-        size,
-        type,
-        normalized,
-        stride,
-        offset
-      );
-      this.gl.enableVertexAttribArray(location);
-    });
-
-    const uLocation = this.gl.getUniformLocation(this.program, "u_location");
-    if (uLocation === null) {
-      console.warn('Uniform "u_location" not found in shader program.');
-    }
-
-    // Set the uniform value (world position of the object)
-    this.gl.uniform3fv(uLocation, new Float32Array(this.worldLocation));
-  }
-
-  update() {}
-
-  draw() {
-    this.setupAttributes(this.attributes);
-
-    // Draw the object
-    this.gl.drawArrays(this.drawingOptions.mode, 0, this.drawingOptions.count);
-  }
-}
-
-```
-
----
-
+  
 ### **How It Works**
 
 1. **Generalized Vertex Data**:
@@ -861,21 +612,6 @@ export class StaticMesh {
 
 ---
 
-### **Example: Drawing a Triangle**
-
-### Vertex Shader (`vertexShaderSource`)
-
-```glsl
-attribute vec3 a_position;
-attribute vec3 a_color;
-
-varying vec3 v_color;
-
-void main() {
-  gl_Position = vec4(a_position, 1.0);
-  v_color = a_color;
-}
-```
 
 ### Fragment Shader (`fragmentShaderSource`)
 
@@ -888,50 +624,6 @@ void main() {
   gl_FragColor = vec4(v_color, 1.0);
 }
 ```
-
-### JavaScript Code
-
-```jsx
-const canvas = document.getElementById('canvas');
-const gl = canvas.getContext('webgl');
-
-// Vertex and Fragment Shaders
-const vertexShaderSource = `...`;  // Insert the vertex shader here
-const fragmentShaderSource = `...`;  // Insert the fragment shader here
-
-// Vertex Data (Position + Color)
-const vertices = [
-  0.5,  0.5, 0.0,   1.0, 0.0, 0.0, // Top-right (Red)
-  0.5, -0.5, 0.0,   0.0, 1.0, 0.0, // Bottom-right (Green)
- -0.5, -0.5, 0.0,   0.0, 0.0, 1.0  // Bottom-left (Blue)
-];
-
-// Attribute Definitions
-const attributes = [
-  { name: 'a_position', size: 3, type: gl.FLOAT, normalized: false, stride: 6 * Float32Array.BYTES_PER_ELEMENT, offset: 0 },
-  { name: 'a_color',    size: 3, type: gl.FLOAT, normalized: false, stride: 6 * Float32Array.BYTES_PER_ELEMENT, offset: 3 * Float32Array.BYTES_PER_ELEMENT }
-];
-
-// Create and Draw the StaticMesh
-const triangle = new StaticMesh(gl, vertexShaderSource, fragmentShaderSource, vertices, attributes);
-triangle.draw(gl.TRIANGLES, 3);
-
-```
-
----
-
-### **Benefits of `StaticMesh`**
-
-- **Reusable for Any Geometry**:
-    - Define the vertex format once and reuse the class for triangles, quads, cubes, or custom 3D models.
-- **Flexible Attributes**:
-    - Supports custom layouts, such as position-only, position + color, position + texture coordinates, etc.
-- **Dynamic Rendering**:
-    - Easily change the draw mode (e.g., `TRIANGLES`, `LINES`, `POINTS`) by passing a different `mode` to `draw()`.
-
----
-
-This `StaticMesh` class is now a robust and reusable foundation for rendering 2D/3D geometries in WebGL!
 
 # Define Geometry (OpenGL)
 
@@ -1016,7 +708,7 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 4. **Define Vertex Data**
     - Prepare the raw geometry data (e.g., positions, colors):
     
-    ```jsx
+    ```js
     const vertices = [
       // X, Y, Z, R, G, B
        0.5,  0.5, 0.0,   1.0, 0.0, 0.0,  // Top-right (Red)
@@ -1028,7 +720,7 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 5. **Create and Bind a Buffer**
     - Upload the vertex data to a GPU buffer:
     
-    ```jsx
+    ```js
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -1037,7 +729,7 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 6. **Set Up Attributes**
     - Define how to interpret the vertex data (e.g., positions and colors):
     
-    ```jsx
+    ```js
     const positionLocation = gl.getAttribLocation(program, 'a_position');
     gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
     gl.enableVertexAttribArray(positionLocation);
@@ -1050,21 +742,19 @@ Here’s a **step-by-step flow** for how to set up and define a geometry in WebG
 7. **Use the Program**
     - Set the shader program as active:
     
-    ```jsx
+    ```js
     gl.useProgram(program);
     ```
     
 8. **Render the Geometry**
     - Draw the vertices using `gl.drawArrays`:
     
-    ```jsx
+    ```js
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Black background
     gl.clear(gl.COLOR_BUFFER_BIT);
     
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     ```
-    
-
 ---
 
 ### **Summary**
@@ -1082,11 +772,7 @@ Here’s the simplified flow:
 
 ---
 
-### **Class Integration**
-
-The `StaticMesh` class provided earlier encapsulates all these steps for reusability. By following this flow, you can adapt it for any geometry, making it flexible for 2D or 3D rendering.
-
-# Does each object have to have its own shader?
+# Does Each Object Have to Have its Own Shader?
 
 Not necessarily! While each object **can** have its own shader if needed, you can reuse the same shader across multiple objects if they share similar rendering requirements. Here’s a breakdown to help you decide:
 
@@ -1193,8 +879,6 @@ triangle2.draw(gl.TRIANGLES, 3);
 - Use separate shaders when objects require fundamentally different visual effects.
 
 This approach ensures performance while maintaining flexibility!
-
-4o
 
 # Render Loop
 ![image](https://github.com/user-attachments/assets/d16e60c3-29b5-44fd-858e-8812db808386)
