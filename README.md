@@ -121,21 +121,21 @@ The `StaticMesh` only handles geometry and attributes. It references the `Shader
 
 ```jsx
 export interface IStaticMesh {
-  gl: WebGLRenderingContext,
+    gl: WebGLRenderingContext,
     vertices: Float32Array,
     attributes: VertexAttributeDefinition[],
     count: number,
     shaderProgram: IShaderProgram,
     mode: GLenum;
-
-  draw(): void;
-  // Update the vertex data and recreate the buffer
-  updateVertices(newVertices: Float32Array): void;
-  setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
-  setMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
-
-  // Clean up WebGL resources
-  delete(): void;
+    
+    draw(): void;
+    // Update the vertex data and recreate the buffer
+    updateVertices(newVertices: Float32Array): void;
+    setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
+    setMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
+    
+    // Clean up WebGL resources
+    delete(): void;
 }
 ```
 
