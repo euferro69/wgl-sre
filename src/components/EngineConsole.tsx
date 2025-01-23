@@ -19,8 +19,8 @@ export default function EngineConsole() {
   return (
     <>
       <div className="flex flex-col absolute bottom-0 w-full h-fit">
-        <div className="felx flex-row w-full h-full bg-[#333] p-0">
-          <div>
+        <div className="felx flex-row w-full h-full bg-[#222] p-0">
+          <div className="border border-t-[#333] border-b-[#333] border-l-0 border-r-0">
             <IconButton
               aria-label="delete"
               color="inherit"
@@ -35,8 +35,8 @@ export default function EngineConsole() {
           id="engine-console"
           className={
             open
-              ? "w-full overflow-y-auto bg-[#222] flex flex-col max-h-52 p-2"
-              : "w-full overflow-y-auto bg-[#222] flex flex-col max-h-0 p-0"
+              ? "w-full overflow-y-auto bg-[#222] flex flex-col max-h-52 p-2 transition-all"
+              : "w-full overflow-y-auto bg-[#222] flex flex-col max-h-0 p-0 transition-all"
           }
         ></div>
       </div>
