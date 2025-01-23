@@ -1,4 +1,4 @@
-export interface VertexAttribute {
+export interface VertexAttributeDefinition {
   name: string; // Attribute name (e.g., "a_position")
   size: number; // Number of components (e.g., 3 for vec3)
   type: GLenum; // WebGL type (e.g., gl.FLOAT)

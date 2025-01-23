@@ -8,7 +8,6 @@ export class Renderer implements IRenderer {
   inputManager: IInputManager;
   lastTime: number; // Last frame time for FPS calculation
 
-  // Experimental ---------------------------------------
   loadedWorld: IWorld | null; // Holds the currently loaded world
 
   constructor(
@@ -46,6 +45,11 @@ export class Renderer implements IRenderer {
     );
   }
 
+  loadWorld(newWorld: IWorld): void {
+    this.loadedWorld = newWorld;
+    Log(`Switched to new world`, "#0f0");
+  }
+
   load(): void {
     // Add loading of objects here
     Log("Loading... (TODO)", "#ff0", 5, true);
@@ -59,6 +63,11 @@ export class Renderer implements IRenderer {
   }
 
   draw(): void {
+    if (!this.loadedWorld) {
+      Log("wARNING: No world loaded to render.", "#ff0");
+      return;
+    }
+
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
     // TODO draw more stuff here

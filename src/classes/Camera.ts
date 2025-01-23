@@ -2,16 +2,18 @@ import { ICamera } from "@/interfaces/EngineInterfaces";
 import { mat4, vec3 } from "gl-matrix";
 
 export class Camera implements ICamera {
-  private projectionMatrix: mat4;
-  private viewMatrix: mat4;
-  private position: vec3;
-  private target: vec3;
-  private up: vec3;
-  private fov: number; // Field of View in degrees (for perspective mode)
-  private aspect: number; // Aspect ratio
-  private near: number; // Near clipping plane
-  private far: number; // Far clipping plane
-  private mode: "perspective" | "orthographic";
+  // Matrices
+  projectionMatrix: mat4;
+  viewMatrix: mat4;
+  // Parameters
+  position: vec3;
+  target: vec3;
+  up: vec3;
+  fov: number; // Field of View in degrees (for perspective mode)
+  aspect: number; // Aspect ratio
+  near: number; // Near clipping plane
+  far: number; // Far clipping plane
+  mode: "perspective" | "orthographic";
 
   constructor(
     mode: "perspective" | "orthographic" = "perspective",
@@ -40,7 +42,7 @@ export class Camera implements ICamera {
   }
 
   // Update the projection matrix based on the camera mode
-  private updateProjectionMatrix(): void {
+  updateProjectionMatrix(): void {
     if (this.mode === "perspective") {
       mat4.perspective(
         this.projectionMatrix,
@@ -64,7 +66,7 @@ export class Camera implements ICamera {
   }
 
   // Update the view matrix based on the position, target, and up vector
-  private updateViewMatrix(): void {
+  updateViewMatrix(): void {
     mat4.lookAt(this.viewMatrix, this.position, this.target, this.up);
   }
 
@@ -94,9 +96,10 @@ export class Camera implements ICamera {
 
   // Set the Field of View (for perspective mode only)
   setFov(fov: number): void {
-    this.fov = fov;
+    this.fov = Math.max(10, Math.min(120, fov)); // Clamp between 10 and 120
     this.updateProjectionMatrix();
   }
+
 
   // Get the projection matrix
   getProjectionMatrix(): mat4 {
@@ -130,4 +133,62 @@ export class Camera implements ICamera {
 
     this.updateViewMatrix();
   }
+
+  public moveForward(amount: number): void {
+    const forward = vec3.create();
+    vec3.subtract(forward, this.target, this.position);
+    vec3.normalize(forward, forward);
+    vec3.scaleAndAdd(this.position, this.position, forward, amount);
+    vec3.scaleAndAdd(this.target, this.target, forward, amount);
+    this.updateViewMatrix();
+  }
+
+  public moveRight(amount: number): void {
+    const forward = vec3.create();
+    vec3.subtract(forward, this.target, this.position);
+    const right = vec3.create();
+    vec3.cross(right, forward, this.up);
+    vec3.normalize(right, right);
+    vec3.scaleAndAdd(this.position, this.position, right, amount);
+    vec3.scaleAndAdd(this.target, this.target, right, amount);
+    this.updateViewMatrix();
+  }
+
+  public moveUp(amount: number): void {
+    vec3.scaleAndAdd(this.position, this.position, this.up, amount);
+    vec3.scaleAndAdd(this.target, this.target, this.up, amount);
+    this.updateViewMatrix();
+  }
+
+  public roll(angle: number): void {
+    const forward = vec3.create();
+    vec3.subtract(forward, this.target, this.position);
+    vec3.normalize(forward, forward);
+
+    const rotationMatrix = mat4.create();
+    mat4.rotate(rotationMatrix, mat4.create(), angle, forward);
+
+    vec3.transformMat4(this.up, this.up, rotationMatrix);
+    this.updateViewMatrix();
+  }
+
+  public lookAt(target: vec3): void {
+    vec3.copy(this.target, target);
+    this.updateViewMatrix();
+  }
+
+  public autoAdjustAspect(canvas: HTMLCanvasElement): void {
+    const aspect = canvas.clientWidth / canvas.clientHeight;
+    this.setAspect(aspect);
+  }
+
+  public logCameraState(): void {
+    console.log("Camera State:");
+    console.log("Position:", this.position);
+    console.log("Target:", this.target);
+    console.log("Up:", this.up);
+    console.log("Projection Matrix:", this.projectionMatrix);
+    console.log("View Matrix:", this.viewMatrix);
+  }
+
 }

@@ -1,41 +1,29 @@
 export interface IRenderer {
-  // WebGL API requirements
   canvas: HTMLCanvasElement;
   gl: WebGLRenderingContext;
   inputManager: IInputManager;
-  // Last frame time for FPS calculation
-  lastTime: number;
 
-  // Method to start the rendering loop
-  start(): void;
+  lastTime: number; // Last frame time for FPS calculation
+  loadedWorld: IWorld | null; // Loaded world to draw
 
-  // Method to resize the canvas and adjust WebGL viewport
-  resizeCanvas(): void;
-
-  // Method to load shaders and objects into WebGL
-  load(): void;
-
-  // Method to update logic (could be used for animation)
-  update(): void;
-
-  // Method to render (draw) the scene
+  start(): void; // Method to start the rendering loop
+  resizeCanvas(): void; // Method to resize the canvas and adjust WebGL viewport
+  loadWorld(newWorld: IWorld): void // Changes the world to render at runtime
+  // Render Loop
+  load(): void; // Method to load shaders and objects into WebGL
+  update(): void; // Method to update logic (could be used for animation)
   draw(): void;
 }
 
 export interface IInputManager {
   canvas: HTMLCanvasElement;
-  // Input state tracking (keyboard and mouse)
-  inputState: {
+  inputState: { // Input state tracking (keyboard and mouse)
     keys: Record<string, boolean>;
     mouse: { x: number; y: number; isDown: boolean };
   };
 
-  // Method to bind input event listeners
-  bindInputHandlers(): void;
-
+  bindInputHandlers(): void; // Method to bind input event listeners
   isKeyPressed(keyCode: string): boolean;
-
-  // Method to process user input
   processInput(deltaTime: number): void;
 }
 
@@ -50,65 +38,67 @@ export interface IShaderProgram {
     fragmentShader: WebGLShader
   ): WebGLProgram;
 
-  // Method to get the attribute location from the shader program
   getAttributeLocation(name: string): number;
-
-  // Method to get the uniform location from the shader program
   getUniformLocation(name: string): WebGLUniformLocation;
-
-  // Method to set a uniform matrix4 value]
   setUniformMatrix4fv(name: string, value: mat4): void;
-
-  // Method to set a uniform 1f value
   setUniform1f(name: string, value: number): void;
-
-  // Method to set a uniform 3fv value
   setUniform3fv(name: string, value: vec3): void;
-
-  // Method to set a uniform 4fv value
   setUniform4fv(name: string, value: vec4): void;
 
-  // Method to clean up the shader program
-  delete(): void;
+  delete(): void; // Method to clean up the shader program
 }
 
-import { VertexAttribute } from "@/interfaces/GLInterfaces"; // Assuming a VertexAttribute interface exists
+import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
+
 export interface IStaticMesh {
-  // Attributes describing the vertex data structure
-  attributes: VertexAttribute[];
+  attributes: VertexAttributeDefinition[]; // Attributes describing the vertex data structure
 
-  // Draw the mesh
   draw(): void;
-
   // Update the vertex data and recreate the buffer
   updateVertices(newVertices: Float32Array): void;
-
-  // Set a custom shader program for this mesh
-  setShaderProgram(shaderProgram: IShaderProgram): void;
-
-  // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
-  setMode(mode: GLenum): void;
+  setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
+  setMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
 
   // Clean up WebGL resources
   delete(): void;
 }
 
 import { mat4, vec3, vec4 } from "gl-matrix";
+
 export interface ICamera {
+  // Matrices
+  projectionMatrix: mat4;
+  viewMatrix: mat4;
+  // Parameters
+  position: vec3;
+  target: vec3;
+  up: vec3;
+  fov: number; // Field of View in degrees (for perspective mode)
+  aspect: number; // Aspect ratio
+  near: number; // Near clipping plane
+  far: number; // Far clipping plane
+  mode: "perspective" | "orthographic";
+
   // Methods for setting camera properties
   setMode(mode: "perspective" | "orthographic"): void;
   setAspect(aspect: number): void;
   setPosition(position: vec3): void;
   setTarget(target: vec3): void;
-  setFov(fov: number): void;
+  setFov(fov: number): void; // (for perspective mode only)
 
-  // Getters for camera matrices
   getProjectionMatrix(): mat4;
   getViewMatrix(): mat4;
-  getViewProjectionMatrix(): mat4;
+  getViewProjectionMatrix(): mat4; // Get the combined view-projection matrix
 
-  // Camera utility methods
   rotate(axis: vec3, angle: number): void;
+  moveForward(amount: number): void;
+  moveRight(amount: number): void;
+  moveUp(amount: number): void;
+  roll(angle: number): void;
+  lookAt(target: vec3): void;
+
+  autoAdjustAspect(canvas: HTMLCanvasElement): void;
+  logCameraState(): void;
 }
 
 export interface IWorld {
