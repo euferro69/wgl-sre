@@ -234,8 +234,8 @@ Pass the light data to the shader: In your rendering pipeline, you need to pass 
 
 Calculate the lighting in the shader: In your GLSL shader, you would use the passed light properties to calculate the lighting (using models like Phong, Blinn-Phong, Lambertian, etc.).
 
-### Step-by-Step Implementation
-1. Define DirectionalLight Class (already done)
+## Step-by-Step Implementation
+### **1. Define DirectionalLight Class (already done)**
 Your DirectionalLight class looks good. It encapsulates the light's direction, color, intensity, and the optional shadow-casting feature.
 
 ```ts
