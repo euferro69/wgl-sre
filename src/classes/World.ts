@@ -1,5 +1,5 @@
 import { mat4, vec3, vec4 } from "gl-matrix";
-import { IDirectionalLight, ILight, IStaticMesh, IWorld } from "@/interfaces/EngineInterfaces";
+import { IDirectionalLight, ILight, IPointLight, ISpotLight, IStaticMesh, IWorld } from "@/interfaces/EngineInterfaces";
 import { ICamera } from "@/interfaces/EngineInterfaces";
 import { IShaderProgram } from "@/interfaces/EngineInterfaces";
 import { Log } from "@/utils/Logging";
@@ -13,7 +13,9 @@ export class World implements IWorld {
   cameras: ICamera[];
   activeCamera: ICamera | null;
   directionalLight: IDirectionalLight | null;
-  lights: ILight[];
+  ambientlight: ILight | null;
+  pointLights: IPointLight[];
+  spotLights: ISpotLight[];
   // Default Shader
   shaderProgram: ShaderProgram;
   // Grid
@@ -32,7 +34,9 @@ export class World implements IWorld {
     this.cameras = [];
     this.activeCamera = null;
     this.directionalLight = null;
-    this.lights = [];
+    this.ambientlight = null;
+    this.pointLights = [];
+    this.spotLights = [];
     // Shader
     this.shaderProgram = shaderProgram;
     // Grid
@@ -46,11 +50,19 @@ export class World implements IWorld {
 
   setDirectionalLight(newDirectionalLight: IDirectionalLight): void {
     this.directionalLight = newDirectionalLight;
-    this.shaderProgram.setUniform3fv("u_dirLightDirection", newDirectionalLight.direction as vec3);
+    this.shaderProgram.setUniform3fv("u_directionalLight", newDirectionalLight.direction as vec3);
   }
 
-  addLight(light: ILight): void {
-    this.lights.push(light);
+  setAmbientLight(ambientLight: ILight): void {
+    this.ambientlight = ambientLight;
+  }
+
+  addPointLight(light: IPointLight): void {
+    this.pointLights.push(light);
+  }
+
+  addSpotLight(light: ISpotLight): void {
+    this.spotLights.push(light);
   }
 
   setGridSize(newSize: number) {
@@ -184,6 +196,10 @@ export class World implements IWorld {
     Log("World State: -------------------------------------------", "#0FF", 6, true);
     Log(`Number of Static Meshes: ${this.staticMeshes.length}`,     "#0FF", 6, true);
     Log(`Number of Cameras:       ${this.cameras.length}`,          "#0FF", 6, true);
+    Log(`Directional Light:       ${this.directionalLight}`,        "#0FF", 6, true);
+    Log(`Ambient Light:           ${this.ambientlight}`,            "#0FF", 6, true);
+    Log(`Number of Point Lights:  ${this.pointLights.length}`,      "#0FF", 6, true);
+    Log(`Number of Spot Lights:   ${this.spotLights.length}`,       "#0FF", 6, true);
     Log(`Active Camera:           ${this.activeCamera}`,            "#0FF", 6, true);
   }
 

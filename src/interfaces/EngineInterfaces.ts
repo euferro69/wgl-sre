@@ -120,9 +120,7 @@ export interface IDirectionalLight extends ILight {
 export interface IPointLight extends ILight {
   position?: vec3; // Position of the light in world space
   // Attenuation properties
-  constantAttenuationFactor?: number; // Constant attenuation factor (default = 0.0)
-  linearAttenuationFactor?: number; // Linear attenuation factor (default = 0.0)
-  quadraticAttenuationFactor?: number; // Quadratic attenuation factor (default = 1.0)
+  attenuationFactor?: number; // Quadratic attenuation factor (default = 1.0)
 }
 export interface ISpotLight extends ILight {
   position?: vec3; // Position of the light in world space
@@ -141,7 +139,9 @@ export interface IWorld {
   cameras: ICamera[];
   activeCamera: ICamera | null;
   directionalLight: IDirectionalLight | null;
-  lights: ILight[];
+  ambientlight: ILight | null;
+  pointLights: IPointLight[];
+  spotLights: ISpotLight[];
 
   shaderProgram: IShaderProgram;
 
@@ -160,7 +160,9 @@ export interface IWorld {
   addCamera(camera: ICamera): void;
   setActiveCamera(camera: ICamera): void;
   setDirectionalLight(newDirectionalLight: IDirectionalLight): void;
-  addLight(light: ILight): void;
+  setAmbientLight(ambientLight: ILight): void;
+  addPointLight(light: IPointLight): void;
+  addSpotLight(light: ISpotLight): void;
 
 
   load(): void;

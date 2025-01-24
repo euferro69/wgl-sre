@@ -16,6 +16,7 @@ import EngineHeader from "@/components/EngineHeader";
 import { StaticMesh } from "@/classes/StaticMesh";
 import { cubeVertexData_colored, cubeVertexData_white } from "@/assets/cube_model";
 import { Log } from "@/utils/Logging";
+import DirectionalLight from "@/classes/DirectionalLight";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -74,6 +75,7 @@ export default function Home() {
       world.setGridDefaultColor([0.15, 0.15, 0.15, 1.0]);
       world.createGrid();
       world.addStaticMesh(cube);
+      world.setDirectionalLight(new DirectionalLight([0.0, 1.0, 1.0]))
       world.logWorldState();
 
       // Initialize the Renderer
