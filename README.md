@@ -226,13 +226,13 @@ This refactored architecture creates a clear separation of concerns:
 
 To use your DirectionalLight class and add it to the world while calculating lighting in the shader, you need to break the task into several steps:
 
-Define your light class (DirectionLight): You already have the DirectionalLight class that represents a directional light source. This will need to be used to create the actual light object in your world scene.
+1. **Define your light class (DirectionLight):** You already have the DirectionalLight class that represents a directional light source. This will need to be used to create the actual light object in your world scene.
 
-Add the light to the world: You need to store and manage the light in your scene/world object. A common approach would be to have a list of lights in your world object, including all types of lights (point lights, directional lights, spotlights, etc.).
+2. **Add the light to the world:** You need to store and manage the light in your scene/world object. A common approach would be to have a list of lights in your world object, including all types of lights (point lights, directional lights, spotlights, etc.).
 
-Pass the light data to the shader: In your rendering pipeline, you need to pass the light properties (like direction, color, intensity) to the shader. This can be done by setting uniforms in your shader program.
+3. **Pass the light data to the shader:** In your rendering pipeline, you need to pass the light properties (like direction, color, intensity) to the shader. This can be done by setting uniforms in your shader program.
 
-Calculate the lighting in the shader: In your GLSL shader, you would use the passed light properties to calculate the lighting (using models like Phong, Blinn-Phong, Lambertian, etc.).
+4. **Calculate the lighting in the shader:** In your GLSL shader, you would use the passed light properties to calculate the lighting (using models like Phong, Blinn-Phong, Lambertian, etc.).
 
 ## Step-by-Step Implementation
 ### **1. Define DirectionalLight Class (already done)**
@@ -255,6 +255,8 @@ export default class DirectionLight implements IDirectionalLight {
   }
 }
 ```
+
+---
 
 ### **2. Add Lights to the World**
 You would typically have a World or Scene class that manages all the lights and objects. You could create an array to hold all lights (in this case, we’ll just use directional lights for simplicity).
@@ -332,6 +334,8 @@ void main() {
 }
 ```
 
+---
+
 ### **4. Set Shader Uniforms in WebGL**
 In your WebGL code, you need to pass the light information (direction, color, and intensity) to the shader.
 
@@ -350,11 +354,12 @@ function setLightingUniforms(gl: WebGLRenderingContext, shaderProgram: WebGLProg
 }
 ```
 
+---
+
 ### **5. Rendering Loop**
 In the main rendering loop, you'll set the light data to the shaders before drawing the objects:
 
-typescript
-Copy
+```ts
 function renderScene(gl: WebGLRenderingContext, shaderProgram: WebGLProgram, world: World) {
   // Set the lighting uniforms for each light in the world
   world.lights.forEach(light => {
@@ -368,6 +373,9 @@ function renderScene(gl: WebGLRenderingContext, shaderProgram: WebGLProgram, wor
   // For example:
   // gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 }
+```
+---
+
 ### **Summary:**
 **Step 1:** Define the DirectionalLight class that holds the light's color, intensity, direction, and optional shadow property.
 **Step 2:** Create a World or Scene class that stores the lights and passes them to the shaders.
