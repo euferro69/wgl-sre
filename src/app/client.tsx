@@ -129,7 +129,6 @@ export default function ClientHome({
 
       <FpsOverlay />
       <LogOverlay />
-
       <LoadingPopup isLoading={isLoading} message={loadingMessage} />
 
       <canvas
