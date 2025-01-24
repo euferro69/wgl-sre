@@ -31,6 +31,15 @@ export interface IInputManager {
   processInput(deltaTime: number): void;
 }
 
+export interface IFileManager {
+  readTXT(path: string): Promise<string>;
+  readGLSL(path: string): Promise<string>;
+  readFBX(path: string): Promise<string>;
+  readOBJ(path: string): Promise<string>;
+  
+  writeFile(path: string, str: string): Promise<void>;
+}
+
 export interface IShaderProgram {
   // Method to use the shader program in WebGL
   use(): void;
