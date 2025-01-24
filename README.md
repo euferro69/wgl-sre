@@ -234,12 +234,11 @@ Pass the light data to the shader: In your rendering pipeline, you need to pass 
 
 Calculate the lighting in the shader: In your GLSL shader, you would use the passed light properties to calculate the lighting (using models like Phong, Blinn-Phong, Lambertian, etc.).
 
-Step-by-Step Implementation
+### Step-by-Step Implementation
 1. Define DirectionalLight Class (already done)
 Your DirectionalLight class looks good. It encapsulates the light's direction, color, intensity, and the optional shadow-casting feature.
 
-typescript
-Copy
+```ts
 import { IDirectionalLight } from "@/interfaces/EngineInterfaces";
 import { vec3 } from "gl-matrix";
 
@@ -255,13 +254,14 @@ export default class DirectionLight implements IDirectionalLight {
     this.direction = direction;
   }
 }
-2. Add Lights to the World
+```
+
+### **2. Add Lights to the World**
 You would typically have a World or Scene class that manages all the lights and objects. You could create an array to hold all lights (in this case, we’ll just use directional lights for simplicity).
 
 Here’s a basic example of how the World or Scene class might look:
 
-typescript
-Copy
+```ts
 import DirectionLight from "@/lights/DirectionLight"; // Assuming your light class is in a 'lights' folder
 
 class World {
@@ -276,14 +276,15 @@ class World {
     this.lights.push(light);
   }
 }
-3. Pass Light Data to the Shader
+```
+
+### **3. Pass Light Data to the Shader**
 To calculate the lighting in the shader, we need to pass the light data (color, intensity, direction) to the fragment shader. Here's how you can pass the data to your shader using WebGL.
 
-Vertex Shader:
+**Vertex Shader:**
 Your vertex shader typically only needs to pass the position and normals (for lighting calculations).
 
-glsl
-Copy
+```glsl
 #version 300 es
 in vec3 a_position;   // Vertex position
 in vec3 a_normal;     // Vertex normal
@@ -299,11 +300,12 @@ void main() {
     v_position = (u_model * vec4(a_position, 1.0)).xyz; // Get world position
     gl_Position = u_projection * u_view * vec4(v_position, 1.0); // Transform vertex position to clip space
 }
-Fragment Shader:
+```
+
+**Fragment Shader:**
 Now in your fragment shader, you'll compute the lighting based on the directional light. This typically involves computing a dot product between the light's direction and the normal at the fragment.
 
-glsl
-Copy
+```glsl
 #version 300 es
 precision highp float;
 
@@ -328,13 +330,14 @@ void main() {
     // Output the color
     fragColor = vec4(finalColor, 1.0);
 }
-4. Set Shader Uniforms in WebGL
+```
+
+### **4. Set Shader Uniforms in WebGL**
 In your WebGL code, you need to pass the light information (direction, color, and intensity) to the shader.
 
 Here’s how you can set the uniforms for your directional light in JavaScript:
 
-typescript
-Copy
+```ts
 function setLightingUniforms(gl: WebGLRenderingContext, shaderProgram: WebGLProgram, light: DirectionLight) {
   const lightDirectionLocation = gl.getUniformLocation(shaderProgram, "u_lightDirection");
   const lightColorLocation = gl.getUniformLocation(shaderProgram, "u_lightColor");
@@ -345,7 +348,9 @@ function setLightingUniforms(gl: WebGLRenderingContext, shaderProgram: WebGLProg
   gl.uniform3fv(lightColorLocation, light.color); // Color (as a vec3)
   gl.uniform1f(lightIntensityLocation, light.intensity); // Intensity (as a float)
 }
-5. Rendering Loop
+```
+
+### **5. Rendering Loop**
 In the main rendering loop, you'll set the light data to the shaders before drawing the objects:
 
 typescript
@@ -363,13 +368,14 @@ function renderScene(gl: WebGLRenderingContext, shaderProgram: WebGLProgram, wor
   // For example:
   // gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 }
-Summary:
-Step 1: Define the DirectionalLight class that holds the light's color, intensity, direction, and optional shadow property.
-Step 2: Create a World or Scene class that stores the lights and passes them to the shaders.
-Step 3: Pass the light data to your vertex and fragment shaders through uniforms.
-Step 4: Calculate the lighting in the fragment shader (e.g., using diffuse lighting).
-Step 5: Set the light uniforms in WebGL before rendering the scene.
-Enhancements:
+### **Summary:**
+**Step 1:** Define the DirectionalLight class that holds the light's color, intensity, direction, and optional shadow property.
+**Step 2:** Create a World or Scene class that stores the lights and passes them to the shaders.
+**Step 3:** Pass the light data to your vertex and fragment shaders through uniforms.
+**Step 4:** Calculate the lighting in the fragment shader (e.g., using diffuse lighting).
+**Step 5:** Set the light uniforms in WebGL before rendering the scene.
+
+### Enhancements:
 You can add more lighting types (e.g., point lights, spotlights) to your scene.
 To improve performance, you can dynamically adjust which lights affect specific objects based on distance, frustum, etc.
 You can extend the lighting calculations to include specular highlights, ambient light, and shadow mapping for more advanced effects.
