@@ -83,7 +83,7 @@ export default function ClientHome({
         defaultShaderProgram
       );
       floor.scale([10, 0.1, 10]);
-      // floor.rotate(90, [0.0, 0.0, 1.0]);
+      floor.rotate(90, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING
 
       const cube = new StaticMesh(
         gl,
