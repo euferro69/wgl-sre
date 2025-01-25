@@ -7,8 +7,11 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   eslint: {
-    ignoreDuringBuilds: true
-  }
+    ignoreDuringBuilds: true,
+  },
+  devIndicators: {
+    appIsrStatus: false,
+  },
 };
 
 export default nextConfig;
