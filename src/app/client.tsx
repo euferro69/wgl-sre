@@ -81,6 +81,7 @@ export default function ClientHome({
         36,
         defaultShaderProgram
       );
+      cube.scale([10, 0.25, 10]);
 
       // Cameras
       const camera1 = new Camera("perspective");
