@@ -78,6 +78,14 @@ export default function ClientHome({
             stride: 6 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
             offset: 3 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
           },
+          {
+            name: "a_normal",
+            size: 3, // 3 floats for normal
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
+            offset: 6 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
+          },
         ],
         36,
         defaultShaderProgram
@@ -94,7 +102,7 @@ export default function ClientHome({
             size: 3, // 3 floats for x, y, z
             type: gl.FLOAT,
             normalized: false,
-            stride: 6 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex (position + color)
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex (position + color)
             offset: 0, // Start at the beginning of each vertex
           },
           {
@@ -102,8 +110,16 @@ export default function ClientHome({
             size: 3, // 3 floats for r, g, b
             type: gl.FLOAT,
             normalized: false,
-            stride: 6 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
             offset: 3 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
+          },
+          {
+            name: "a_normal",
+            size: 3, // 3 floats for normal
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
+            offset: 6 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
           },
         ],
         36,

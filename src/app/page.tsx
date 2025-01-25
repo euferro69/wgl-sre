@@ -13,6 +13,8 @@ export default async function Home() {
     "./src/shaders/fragmentShader.glsl"
   );
 
+  console.log("SHADERS:", "\n", vertexShaderSource, "\n", fragmentShaderSource);
+
   return (
     <>
       <ClientHome
