@@ -16,6 +16,7 @@ import { StaticMesh } from "@/engine/StaticMesh";
 import {
   cubeVertexData_colored,
   cubeVertexData_white,
+  cubeVertexData_blue,
 } from "@/assets/cube_model";
 import DirectionalLight from "@/engine/DirectionalLight";
 
@@ -57,7 +58,7 @@ export default function ClientHome({
       );
 
       // Static Mesh (Cube)
-      const cube = new StaticMesh(
+      const floor = new StaticMesh(
         gl,
         cubeVertexData_white,
         [
@@ -81,10 +82,37 @@ export default function ClientHome({
         36,
         defaultShaderProgram
       );
-      cube.scale([10, 0.25, 10]);
+      floor.scale([10, 0.1, 10]);
+      // floor.rotate(90, [0.0, 0.0, 1.0]);
+
+      const cube = new StaticMesh(
+        gl,
+        cubeVertexData_blue,
+        [
+          {
+            name: "a_position",
+            size: 3, // 3 floats for x, y, z
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 6 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex (position + color)
+            offset: 0, // Start at the beginning of each vertex
+          },
+          {
+            name: "a_color",
+            size: 3, // 3 floats for r, g, b
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 6 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
+            offset: 3 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
+          },
+        ],
+        36,
+        defaultShaderProgram
+      );
+      cube.translate([0.0, 5.0, 0.0]); // BUG HERE
 
       // Cameras
-      const camera1 = new Camera("perspective");
+      const camera1 = new Camera("perspective", [10, 2, 10]);
       const camera2 = new Camera("perspective", [0, 5, 2]);
 
       // Create the default World
@@ -97,6 +125,7 @@ export default function ClientHome({
       world.setGridSize(50);
       world.setGridDefaultColor([0.15, 0.15, 0.15, 1.0]);
       world.createGrid();
+      world.addStaticMesh(floor);
       world.addStaticMesh(cube);
       // world.setDirectionalLight(new DirectionalLight([0.0, 1.0, 1.0]));
       world.logWorldState();

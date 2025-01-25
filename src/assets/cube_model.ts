@@ -104,5 +104,73 @@ export const cubeVertexData_white = new Float32Array([
    1.0, -1.0,  1.0,  1.0, 1.0, 1.0,  // Top-right
 ]);
 
+export const cubeVertexData_blue = new Float32Array([
+  // **Top Face** (2 triangles)
+  // First triangle
+  -1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-right
+   1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // Second triangle
+  -1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-left
+  -1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // **Front Face** (Side Face 1) (2 triangles)
+  // First triangle
+  -1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Bottom-right
+   1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // Second triangle
+  -1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-left
+  -1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // **Back Face** (Side Face 2) (2 triangles)
+  // First triangle
+  -1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-right
+   1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // Second triangle
+  -1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Top-left
+  -1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // **Right Face** (Side Face 3) (2 triangles)
+  // First triangle
+   1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Top-left
+   1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // Second triangle
+   1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Bottom-right
+   1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // **Left Face** (Side Face 4) (2 triangles)
+  // First triangle
+  -1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+  -1.0,  1.0, -1.0,  0.0, 0.5, 1.0,  // Top-left
+  -1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // Second triangle
+  -1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Bottom-right
+  -1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+  -1.0,  1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // **Bottom Face** (2 triangles)
+  // First triangle
+  -1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-right
+   1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+
+  // Second triangle
+  -1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Bottom-left
+  -1.0, -1.0, -1.0,  0.0, 0.5, 1.0,  // Bottom-left
+   1.0, -1.0,  1.0,  0.0, 0.5, 1.0,  // Top-right
+]);
+
 
 
