@@ -76,6 +76,10 @@ export interface IStaticMesh {
   setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
   setMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
 
+  translate(worldPos: vec3): void; // [x,y,z]
+  rotate(angle: number, axis: vec3): void; // [x,y,z] // radians = degrees * (Math.PI / 180)
+  scale(scale: vec3): void; // [x,y,z]
+
   // Clean up WebGL resources
   delete(): void;
 }

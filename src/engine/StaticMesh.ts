@@ -1,6 +1,6 @@
 import { IShaderProgram, IStaticMesh } from "@/interfaces/EngineInterfaces";
 import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
-import { mat4 } from "gl-matrix";
+import { mat4, vec3 } from "gl-matrix";
 
 export class StaticMesh implements IStaticMesh {
   gl: WebGLRenderingContext;
@@ -39,6 +39,7 @@ export class StaticMesh implements IStaticMesh {
 
     this.createBuffer();
   }
+
   setShaderProgram(shaderProgram: IShaderProgram): void {
     throw new Error("Method not implemented.");
   }
@@ -57,6 +58,17 @@ export class StaticMesh implements IStaticMesh {
     );
   }
 
+  translate(worldPos: vec3): void {
+    mat4.translate(this.modelMatrix, this.modelMatrix, worldPos);
+  }
+  rotate(angle: number, axis: vec3): void {
+    const radians = angle * (Math.PI / 180);
+    mat4.rotate(this.modelMatrix, this.modelMatrix, radians, axis);
+  }
+  scale(scale: vec3): void {
+    mat4.scale(this.modelMatrix, this.modelMatrix, scale);
+  }
+
   // Set the rendering mode (e.g., TRIANGLES, LINES, LINE_STRIP, etc.)
   public setMode(mode: GLenum): void {
     this.mode = mode;
@@ -67,6 +79,8 @@ export class StaticMesh implements IStaticMesh {
     this.shaderProgram.use(); // Use the assigned shader program
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+
+    this.shaderProgram.setUniformMatrix4fv("u_modelMatrix", this.modelMatrix); // Set the model matrix
 
     // Enable and set up attributes
     this.attributes.forEach((attr) => {
