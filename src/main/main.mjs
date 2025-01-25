@@ -20,6 +20,21 @@ const createWindow = () => {
     },
   });
 
+  win.setIcon("./src/app/favicon.ico");
+
+  win.setThumbarButtons([
+    {
+      tooltip: 'button1',
+      icon: "./src/app/favicon.ico",
+      click () { console.log('button1 clicked') }
+    }, {
+      tooltip: 'button2',
+      icon: "./src/app/favicon.ico",
+      flags: ['enabled', 'dismissonclick'],
+      click () { console.log('button2 clicked.') }
+    }
+  ])
+
   if (app.isPackaged) {
     appServe(win).then(() => {
       win.loadURL("app://-");

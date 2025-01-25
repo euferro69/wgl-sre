@@ -4,8 +4,7 @@ import {
   IWorld,
 } from "@/interfaces/EngineInterfaces";
 import { Log, setFps } from "../utils/Logging";
-import { World } from "@/classes/World";
-import { Camera } from "@/classes/Camera";
+import { Camera } from "@/engine/Camera";
 
 export class Renderer implements IRenderer {
   canvas: HTMLCanvasElement;

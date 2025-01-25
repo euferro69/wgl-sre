@@ -1,5 +1,6 @@
 import { IShaderProgram, IStaticMesh } from "@/interfaces/EngineInterfaces";
 import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
+import { mat4 } from "gl-matrix";
 
 export class StaticMesh implements IStaticMesh {
   gl: WebGLRenderingContext;
@@ -16,6 +17,7 @@ export class StaticMesh implements IStaticMesh {
   shaderProgram: IShaderProgram;
   mode: GLenum;
   vertexCount: number;
+  modelMatrix: mat4;
 
   constructor(
     gl: WebGLRenderingContext,
@@ -23,7 +25,8 @@ export class StaticMesh implements IStaticMesh {
     attributes: VertexAttributeDefinition[],
     count: number,
     shaderProgram: IShaderProgram,
-    mode: GLenum = gl.TRIANGLES
+    mode: GLenum = gl.TRIANGLES,
+    modelMatrix: mat4 = mat4.create()
   ) {
     this.gl = gl;
     this.vertices = vertices;
@@ -32,12 +35,13 @@ export class StaticMesh implements IStaticMesh {
     this.shaderProgram = shaderProgram;
     this.mode = mode;
     this.vertexCount = count;
+    this.modelMatrix = modelMatrix;
 
     this.createBuffer();
   }
-    setShaderProgram(shaderProgram: IShaderProgram): void {
-        throw new Error("Method not implemented.");
-    }
+  setShaderProgram(shaderProgram: IShaderProgram): void {
+    throw new Error("Method not implemented.");
+  }
 
   // Create the vertex buffer and load data into it
   private createBuffer(): void {

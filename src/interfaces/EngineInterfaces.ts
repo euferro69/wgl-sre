@@ -68,6 +68,7 @@ export interface IStaticMesh {
   vertexCount: number;
   shaderProgram: IShaderProgram;
   mode: GLenum;
+  modelMatrix: mat4;
 
   draw(): void;
   // Update the vertex data and recreate the buffer

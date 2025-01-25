@@ -8,16 +8,16 @@ import LoadingPopup from "@/components/LoadingPopup";
 import { InputManager } from "@/engine/InputManager";
 import { Renderer } from "@/engine/Renderer";
 import { ShaderProgram } from "@/engine/ShaderProgram";
-import { Camera } from "@/classes/Camera";
-import { World } from "@/classes/World";
+import { Camera } from "@/engine/Camera";
+import { World } from "@/engine/World";
 import EngineConsole from "@/components/EngineConsole";
 import EngineHeader from "@/components/EngineHeader";
-import { StaticMesh } from "@/classes/StaticMesh";
+import { StaticMesh } from "@/engine/StaticMesh";
 import {
   cubeVertexData_colored,
   cubeVertexData_white,
 } from "@/assets/cube_model";
-import DirectionalLight from "@/classes/DirectionalLight";
+import DirectionalLight from "@/engine/DirectionalLight";
 
 interface ClientHomeProps {
   vertexShaderSource: string;

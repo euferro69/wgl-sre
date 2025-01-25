@@ -4,7 +4,7 @@ attribute vec4 a_color;                     // Vertex color
 attribute vec3 a_normal;                    // Vertex normal
 
 // Camera Matrices
-uniform mat4 u_modelMatrix;                 // World pos, scalling
+uniform mat4 u_modelMatrix;                 // translation, rotation, scalling
 uniform mat4 u_viewMatrix;                  // View matrix
 uniform mat4 u_projectionMatrix;            // Projection matrix
 
