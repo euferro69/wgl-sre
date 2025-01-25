@@ -16,7 +16,9 @@ void main() {
     // Apply the view and projection matrices to the vertex position
     gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position, 1.0);
 
-    // Pass the color to the fragment shader
+    // Varying variables to pass data to the fragment shader
+    v_position = a_position;
     v_color = a_color;
+    v_normal = a_normal;
 }
-
+                                 

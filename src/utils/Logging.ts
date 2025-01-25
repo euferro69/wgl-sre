@@ -23,11 +23,12 @@ export function Log(
       logOverlay?.prepend(textElem);
     }
   }
+
   // Add to console
   engineConsole?.appendChild(textElem2);
   if (engineConsole) {
     if (engineConsole.childElementCount > 300) {
-      engineConsole.removeChild(engineConsole.firstChild as ChildNode)
+      engineConsole.removeChild(engineConsole.firstChild as ChildNode);
     }
   }
 

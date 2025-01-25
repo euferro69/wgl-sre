@@ -1,10 +1,12 @@
 import { ICamera } from "@/interfaces/EngineInterfaces";
+import { Log } from "@/utils/Logging";
 import { mat4, vec3 } from "gl-matrix";
 
 export class Camera implements ICamera {
   // Matrices
   projectionMatrix: mat4;
   viewMatrix: mat4;
+  rotationMatrix: mat4;
   // Parameters
   position: vec3;
   target: vec3;
@@ -14,6 +16,9 @@ export class Camera implements ICamera {
   near: number; // Near clipping plane
   far: number; // Far clipping plane
   mode: "perspective" | "orthographic";
+  pitch: number;
+  yaw: number;
+  roll: number;
 
   constructor(
     mode: "perspective" | "orthographic" = "perspective",
@@ -23,7 +28,11 @@ export class Camera implements ICamera {
     fov: number = 90,
     aspect: number = 1,
     near: number = 0.1,
-    far: number = 100
+    far: number = 100,
+    rotationMatrix: mat4 = mat4.create(),
+    pitch: number = 0,
+    yaw: number = 0,
+    roll: number = 0,
   ) {
     this.mode = mode;
     this.position = vec3.clone(position);
@@ -33,6 +42,10 @@ export class Camera implements ICamera {
     this.aspect = aspect;
     this.near = near;
     this.far = far;
+    this.rotationMatrix = rotationMatrix;
+    this.pitch = pitch;
+    this.yaw = yaw;
+    this.roll = roll;
 
     this.projectionMatrix = mat4.create();
     this.viewMatrix = mat4.create();
@@ -117,22 +130,6 @@ export class Camera implements ICamera {
     return viewProjectionMatrix;
   }
 
-  // Rotate the camera around the target
-  public rotate(axis: vec3, angle: number): void {
-    const rotationMatrix = mat4.create();
-    mat4.rotate(rotationMatrix, mat4.create(), angle, axis);
-
-    const direction = vec3.create();
-    vec3.subtract(direction, this.position, this.target);
-
-    const rotatedDirection = vec3.create();
-    vec3.transformMat4(rotatedDirection, direction, rotationMatrix);
-
-    vec3.add(this.position, this.target, rotatedDirection);
-
-    this.updateViewMatrix();
-  }
-
   public moveForward(amount: number): void {
     const forward = vec3.create();
     vec3.subtract(forward, this.target, this.position);
@@ -159,16 +156,89 @@ export class Camera implements ICamera {
     this.updateViewMatrix();
   }
 
-  public roll(angle: number): void {
+  // Rotate the camera around the target
+  public rotate(axis: vec3, angle: number): void {
+    mat4.rotate(this.rotationMatrix, mat4.create(), angle, axis);
+
+    const direction = vec3.create();
+    vec3.subtract(direction, this.position, this.target);
+
+    const rotatedDirection = vec3.create();
+    vec3.transformMat4(rotatedDirection, direction, this.rotationMatrix);
+
+    vec3.add(this.position, this.target, rotatedDirection);
+
+    this.updateViewMatrix();
+    mat4.identity(this.rotationMatrix);
+  }
+
+  public setRoll(angle: number): void {
+    this.roll += angle;
     const forward = vec3.create();
+    const radians = this.roll * (Math.PI / 180);
     vec3.subtract(forward, this.target, this.position);
     vec3.normalize(forward, forward);
 
-    const rotationMatrix = mat4.create();
-    mat4.rotate(rotationMatrix, mat4.create(), angle, forward);
+    mat4.rotate(this.rotationMatrix, mat4.create(), radians, forward);
 
-    vec3.transformMat4(this.up, this.up, rotationMatrix);
+    vec3.transformMat4(this.up, this.up, this.rotationMatrix);
+    vec3.normalize(this.up, this.up);
     this.updateViewMatrix();
+    mat4.identity(this.rotationMatrix);
+    // Log(`Row: ${this.roll}`, "#0FF");
+  }
+
+  public setYaw(angle: number): void {
+    this.yaw += angle;
+    const right = vec3.create();
+    const radians = this.yaw * (Math.PI / 180);
+  
+    // Calculate the right vector (cross product of forward and up vectors)
+    const forward = vec3.create();
+    vec3.subtract(forward, this.target, this.position);
+    vec3.normalize(forward, forward);
+  
+    vec3.cross(right, forward, this.up);
+    vec3.normalize(right, right);
+  
+    mat4.rotate(this.rotationMatrix, mat4.create(), radians, this.up);
+  
+    // Apply the rotation to the forward vector
+    vec3.transformMat4(forward, forward, this.rotationMatrix);
+  
+    // Update the target based on the rotated forward vector
+    vec3.add(this.target, this.position, forward);
+    this.updateViewMatrix();
+    mat4.identity(this.rotationMatrix);
+    // Log(`Yaw: ${this.yaw}`, "#0FF");
+  }
+  
+  public setPitch(angle: number): void {
+    this.pitch = Math.max(-89, Math.min(89, this.pitch));
+    const right = vec3.create();
+    const radians = this.pitch * (Math.PI / 180);
+  
+    // Calculate the forward vector
+    const forward = vec3.create();
+    vec3.subtract(forward, this.target, this.position);
+    vec3.normalize(forward, forward);
+  
+    // Calculate the right vector (cross product of forward and up vectors)
+    vec3.cross(right, forward, this.up);
+    vec3.normalize(right, right);
+  
+    // Create a rotation matrix around the 'right' vector
+    mat4.rotate(this.rotationMatrix, mat4.create(), radians, right);
+  
+    // Apply the rotation to the forward vector and the up vector
+    vec3.transformMat4(forward, forward, this.rotationMatrix);
+    vec3.transformMat4(this.up, this.up, this.rotationMatrix);
+  
+    // Update the target based on the rotated forward vector
+    vec3.add(this.target, this.position, forward);
+    this.updateViewMatrix();
+    mat4.identity(this.rotationMatrix);
+    // Log(`Pitch: ${this.pitch}`, "#0FF");
   }
 
   public lookAt(target: vec3): void {

@@ -67,7 +67,7 @@ export default function ClientHome({
             size: 3, // 3 floats for x, y, z
             type: gl.FLOAT,
             normalized: false,
-            stride: 6 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex (position + color)
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex (position + color)
             offset: 0, // Start at the beginning of each vertex
           },
           {
@@ -75,7 +75,7 @@ export default function ClientHome({
             size: 3, // 3 floats for r, g, b
             type: gl.FLOAT,
             normalized: false,
-            stride: 6 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
             offset: 3 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
           },
           {
@@ -163,7 +163,7 @@ export default function ClientHome({
       throw new Error("WebGL not supported");
     }
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0); // Set clear color
+    gl.clearColor(0.2, 0.2, 0.2, 1.0); // Set clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     return gl;

@@ -28,6 +28,13 @@ export interface IInputManager {
 
   bindInputHandlers(): void; // Method to bind input event listeners
   isKeyPressed(keyCode: string): boolean;
+  isMouseDown(): boolean;
+
+  getMouseX(): number;
+  getMouseY(): number;
+  getMouseDelta(): { deltaX: number, deltaY: number };
+  setMouseLastXY(lastX: number, lastY: number): void;
+
   processInput(deltaTime: number): void;
 }
 
@@ -36,7 +43,7 @@ export interface IFileManager {
   readGLSL(path: string): Promise<string>;
   readFBX(path: string): Promise<string>;
   readOBJ(path: string): Promise<string>;
-  
+
   writeFile(path: string, str: string): Promise<void>;
 }
 
@@ -97,6 +104,9 @@ export interface ICamera {
   near: number; // Near clipping plane
   far: number; // Far clipping plane
   mode: "perspective" | "orthographic";
+  pitch: number;
+  yaw: number;
+  roll: number;
 
   // Methods for setting camera properties
   setMode(mode: "perspective" | "orthographic"): void;
@@ -110,10 +120,13 @@ export interface ICamera {
   getViewProjectionMatrix(): mat4; // Get the combined view-projection matrix
 
   rotate(axis: vec3, angle: number): void;
+  setPitch(angle: number): void;
+  setYaw(angle: number): void;
+  setRoll(angle: number): void;
+
   moveForward(amount: number): void;
   moveRight(amount: number): void;
   moveUp(amount: number): void;
-  roll(angle: number): void;
   lookAt(target: vec3): void;
 
   autoAdjustAspect(canvas: HTMLCanvasElement): void;

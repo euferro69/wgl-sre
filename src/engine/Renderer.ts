@@ -67,12 +67,35 @@ export class Renderer implements IRenderer {
       Log("Error: KILL PROCESS", "#F66");
     }
 
-    // TEST -------------------------------------------------------
-
+    // CAMERA MOVEMENT - TODO MOVE CAM SPEED TO SOME CONFIG OBJECT -------------------------------------------------------
     this.loadedWorld?.setActiveCamera(this.loadedWorld?.activeCamera as Camera);
-    // this.loadedWorld?.activeCamera?.moveForward(0.1);
-    this.loadedWorld?.activeCamera?.rotate([0, 1, 0], 0.01);
+    // if (this.inputManager.isMouseDown()) {
+    //   const { deltaX, deltaY } = this.inputManager.getMouseDelta();
 
+    //   // Adjust sensitivity (scaling factor) for smoother control
+    //   const sensitivity = 0.5 // Lower values make movement smoother
+    //   const adjustedYaw = deltaX * sensitivity;
+    //   const adjustedPitch = deltaY * sensitivity;
+    //   Log(`adjustedYaw = ${adjustedYaw} adjustedPitch = ${adjustedPitch}`);
+    //   this.loadedWorld?.activeCamera?.setYaw(-adjustedYaw);
+    //   this.loadedWorld?.activeCamera?.setPitch(-adjustedPitch);
+    //   // this.loadedWorld?.activeCamera?.roll(1.0);
+
+    //   // Update the last mouse position after using the delta
+    //   this.inputManager.setMouseLastXY(this.inputManager.getMouseX(), this.inputManager.getMouseY());
+    // }
+    if (this.inputManager.isKeyPressed("KeyW")) {
+      this.loadedWorld?.activeCamera?.moveForward(0.1);
+    }
+    if (this.inputManager.isKeyPressed("KeyS")) {
+      this.loadedWorld?.activeCamera?.moveForward(-0.1);
+    }
+    if (this.inputManager.isKeyPressed("KeyD")) {
+      this.loadedWorld?.activeCamera?.moveRight(0.1);
+    }
+    if (this.inputManager.isKeyPressed("KeyA")) {
+      this.loadedWorld?.activeCamera?.moveRight(-0.1);
+    }
     // END TEST ---------------------------------------------------
   }
 

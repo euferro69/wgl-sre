@@ -5,7 +5,11 @@ export class InputManager implements IInputManager {
   canvas: HTMLCanvasElement;
   inputState: {
     keys: Record<string, boolean>;
-    mouse: { x: number; y: number; isDown: boolean };
+    mouse: {
+      x: number; y: number;
+      lastX: number; lastY: number;
+      isDown: boolean
+    };
   };
 
   constructor(canvas: HTMLCanvasElement) {
@@ -13,7 +17,7 @@ export class InputManager implements IInputManager {
     // Input handling
     this.inputState = {
       keys: {}, // Track pressed keys
-      mouse: { x: 0, y: 0, isDown: false }, // Track mouse state
+      mouse: { x: 0, y: 0, lastX: 0, lastY: 0, isDown: false }, // Track mouse state
     };
     this.bindInputHandlers();
   }
@@ -33,6 +37,7 @@ export class InputManager implements IInputManager {
       const rect = this.canvas.getBoundingClientRect();
       this.inputState.mouse.x = event.clientX - rect.left;
       this.inputState.mouse.y = event.clientY - rect.top;
+      // Log(`mouse: { x: ${this.getMouseX()}, y: ${this.getMouseY()}, lastX: ${JSON.stringify(this.getMouseDelta())} }`);
     });
 
     this.canvas.addEventListener("mousedown", () => {
@@ -46,6 +51,29 @@ export class InputManager implements IInputManager {
 
   isKeyPressed(keyCode: string): boolean {
     return this.inputState.keys[keyCode];
+  }
+
+  isMouseDown(): boolean {
+    return this.inputState.mouse.isDown;
+  }
+
+  getMouseX(): number {
+    return this.inputState.mouse.x;
+  }
+  getMouseY(): number {
+    return this.inputState.mouse.y;
+  }
+
+  getMouseDelta(): { deltaX: number, deltaY: number } {
+    return {
+      deltaX: this.inputState.mouse.x - this.inputState.mouse.lastX,
+      deltaY: this.inputState.mouse.y - this.inputState.mouse.lastY
+    }
+  }
+
+  setMouseLastXY(lastX: number, lastY: number): void {
+    this.inputState.mouse.lastX = lastX;
+    this.inputState.mouse.lastY = lastY;
   }
 
   processInput(deltaTime: number): void {

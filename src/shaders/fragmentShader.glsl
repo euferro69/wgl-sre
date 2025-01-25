@@ -34,7 +34,9 @@ uniform PointLight u_pointLights[MAX_LIGHTS];
 uniform SpotLight u_spotLights[MAX_LIGHTS];
 uniform int u_lightCount; // Actual number of lights
 
+varying vec3 v_position;     // Varying color from the vertex shader
 varying vec4 v_color;     // Varying color from the vertex shader
+varying vec3 v_normal;     // Varying color from the vertex shader
 
 void main() {
     gl_FragColor = v_color; // Use the interpolated color for the fragment
