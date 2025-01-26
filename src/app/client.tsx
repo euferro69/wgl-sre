@@ -143,7 +143,7 @@ export default function ClientHome({
         true, false, 5.0, // showWireframe, showPoints, pointSize
         cubeIndices
       );
-      cube.translate([0.0, 5.0, 0.0]); // BUG HERE -------------------------------------------------------------
+      cube.translate([0.0, -2.0, 0.0]); // BUG HERE -------------------------------------------------------------
       cube.setWireframeColor(vec4.fromValues(0.0, 1.0, 1.0, 1.0));
       cube.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
