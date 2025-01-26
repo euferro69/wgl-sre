@@ -74,14 +74,18 @@ export interface IStaticMesh {
   attributes: VertexAttributeDefinition[];
   vertexCount: number;
   shaderProgram: IShaderProgram;
-  mode: GLenum;
+  drawingMode: GLenum;
   modelMatrix: mat4;
 
-  draw(): void;
-  // Update the vertex data and recreate the buffer
-  updateVertices(newVertices: Float32Array): void;
   setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
-  setMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
+
+  setVertices(newVertices: Float32Array): void;
+  setIndices(newIndices: Uint16Array): void;
+  createVertexBuffer(): void;
+  createIndexBuffer(): void;
+
+  setDrawingMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
+  draw(): void;
 
   translate(worldPos: vec3): void; // [x,y,z]
   rotate(angle: number, axis: vec3): void; // [x,y,z] // radians = degrees * (Math.PI / 180)

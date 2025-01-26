@@ -5,6 +5,7 @@ import FpsOverlay from "@/components/FpsOverlay";
 import LogOverlay from "@/components/LogOverlay";
 import LoadingPopup from "@/components/LoadingPopup";
 // Engine
+import { vec4 } from "gl-matrix";
 import { InputManager } from "@/engine/InputManager";
 import { Renderer } from "@/engine/Renderer";
 import { ShaderProgram } from "@/engine/ShaderProgram";
@@ -13,13 +14,14 @@ import { World } from "@/engine/World";
 import EngineConsole from "@/components/EngineConsole";
 import EngineHeader from "@/components/EngineHeader";
 import { StaticMesh } from "@/engine/StaticMesh";
+import DirectionalLight from "@/engine/DirectionalLight";
 import {
   cubeVertexData_colored,
   cubeVertexData_white,
   cubeVertexData_blue,
-} from "@/assets/cube_model";
-import DirectionalLight from "@/engine/DirectionalLight";
-import { vec4 } from "gl-matrix";
+  cubeVertexCount,
+  cubeIndices
+} from "@/assets/cubes";
 
 interface ClientHomeProps {
   vertexShaderSource: string;
@@ -88,10 +90,11 @@ export default function ClientHome({
             offset: 6 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
           },
         ],
-        36,
-        defaultShaderProgram
+        cubeVertexCount,
+        defaultShaderProgram,
+        cubeIndices
       );
-      floor.scale([10, 1.0, 10]);
+      floor.scale([10, 0.25, 10]);
       floor.rotate(90, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING
 
       const cube = new StaticMesh(
@@ -123,8 +126,9 @@ export default function ClientHome({
             offset: 6 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
           },
         ],
-        36,
-        defaultShaderProgram
+        cubeVertexCount,
+        defaultShaderProgram,
+        cubeIndices
       );
       cube.translate([0.0, 5.0, 0.0]); // BUG HERE
 
@@ -141,6 +145,7 @@ export default function ClientHome({
       world.addCamera(camera2);
       world.setGridSize(50);
       world.setGridColor(vec4.fromValues(0.3, 0.3, 0.3, 1.0));
+      world.setShowGrid(false);
       world.addStaticMesh(floor);
       world.addStaticMesh(cube);
       // world.setDirectionalLight(new DirectionalLight([0.0, 1.0, 1.0]));
