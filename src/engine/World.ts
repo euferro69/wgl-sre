@@ -8,6 +8,19 @@ import { ShaderProgram } from "@/engine/ShaderProgram";
 export class World implements IWorld {
   gl: WebGLRenderingContext;
   canvas: HTMLCanvasElement;
+  // Default Shader
+  shaderProgram: ShaderProgram;
+  // Grid
+  gridVertices: Float32Array;
+  gridColors: Float32Array;
+  gridSize: number = 10; // Size of the grid (10x10 squares)
+  gridColor: vec4 = vec4.fromValues(0.5, 0.5, 0.5, 1.0); // Default grid line color
+  gridXColor: vec4 = vec4.fromValues(1.0, 0.6, 0.6, 1.0);
+  gridYColor: vec4 = vec4.fromValues(0.6, 1.0, 0.6, 1.0);
+  gridZColor: vec4 = vec4.fromValues(0.4, 0.8, 1.0, 1.0);
+  vertexBuffer: WebGLBuffer;
+  colorBuffer: WebGLBuffer;
+  b_showGrid: boolean;
   // Objects in the world
   staticMeshes: IStaticMesh[];
   cameras: ICamera[];
@@ -16,19 +29,31 @@ export class World implements IWorld {
   ambientlight: ILight | null;
   pointLights: IPointLight[];
   spotLights: ISpotLight[];
-  // Default Shader
-  shaderProgram: ShaderProgram;
-  // Grid
-  gridVertices: Float32Array;
-  gridColors: Float32Array;
-  gridSize: number = 10; // Size of the grid (10x10 squares)
-  gridColor: number[] = [0.5, 0.5, 0.5, 1.0]; // Default grid line color
-  vertexBuffer: WebGLBuffer;
-  colorBuffer: WebGLBuffer;
 
-  constructor(gl: WebGLRenderingContext, shaderProgram: ShaderProgram, canvas: HTMLCanvasElement) {
+  constructor(
+    gl: WebGLRenderingContext,
+    shaderProgram: ShaderProgram,
+    canvas: HTMLCanvasElement,
+    gridColor: vec4 = vec4.fromValues(0.5, 0.5, 0.5, 1.0),
+    gridXColor: vec4 = vec4.fromValues(1.0, 0.6, 0.6, 1.0),
+    gridYColor: vec4 = vec4.fromValues(0.6, 1.0, 0.6, 1.0),
+    gridZColor: vec4 = vec4.fromValues(0.4, 0.8, 1.0, 1.0),
+    b_showGrid: boolean = true
+  ) {
     this.gl = gl;
     this.canvas = canvas;
+    // Shader
+    this.shaderProgram = shaderProgram;
+    // Grid
+    this.gridVertices = new Float32Array();
+    this.gridColors = new Float32Array();
+    this.vertexBuffer = gl.createBuffer();
+    this.colorBuffer = gl.createBuffer();
+    this.gridColor = gridColor;
+    this.gridXColor = gridXColor;
+    this.gridYColor = gridYColor;
+    this.gridZColor = gridZColor;
+    this.b_showGrid = b_showGrid;
     // World Objects
     this.staticMeshes = [];
     this.cameras = [];
@@ -37,16 +62,34 @@ export class World implements IWorld {
     this.ambientlight = null;
     this.pointLights = [];
     this.spotLights = [];
-    // Shader
-    this.shaderProgram = shaderProgram;
-    // Grid
-    this.gridVertices = new Float32Array();
-    this.gridColors = new Float32Array();
-    this.vertexBuffer = gl.createBuffer();
-    this.colorBuffer = gl.createBuffer();
 
     this.createGrid();
   }
+
+  setShowGrid(newValue: boolean): void {
+    this.b_showGrid = newValue;
+  }
+  setGridSize(newSize: number) {
+    this.gridSize = newSize;
+    this.createGrid();
+  }
+  setGridColor(newColor: vec4): void {
+    this.gridColor = newColor;
+    this.createGrid();
+  }
+  setGridXColor(newColor: vec4): void {
+    this.gridXColor = newColor;
+    this.createGrid();
+  }
+  setGridYColor(newColor: vec4): void {
+    this.gridYColor = newColor;
+    this.createGrid();
+  }
+  setGridZColor(newColor: vec4): void {
+    this.gridZColor = newColor;
+    this.createGrid();
+  }
+
 
   setDirectionalLight(newDirectionalLight: IDirectionalLight): void {
     this.directionalLight = newDirectionalLight;
@@ -65,14 +108,6 @@ export class World implements IWorld {
     this.spotLights.push(light);
   }
 
-  setGridSize(newSize: number) {
-    this.gridSize = newSize;
-  }
-
-  setGridDefaultColor(newColor: vec4) {
-    this.gridColor = [...newColor];
-  }
-
   // Add a static mesh to the world
   addStaticMesh(mesh: IStaticMesh): void {
     this.staticMeshes.push(mesh);
@@ -84,15 +119,15 @@ export class World implements IWorld {
       this.activeCamera = camera;
       camera.autoAdjustAspect(this.canvas);
 
-    // Set camera matrices in the shader
-    this.shaderProgram.setUniformMatrix4fv(
-      "u_viewMatrix",
-      camera.getViewMatrix() as Float32Array
-    )
-    this.shaderProgram.setUniformMatrix4fv(
-      "u_projectionMatrix",
-      camera.getProjectionMatrix() as Float32Array
-    );
+      // Set camera matrices in the shader
+      this.shaderProgram.setUniformMatrix4fv(
+        "u_viewMatrix",
+        camera.getViewMatrix() as Float32Array
+      )
+      this.shaderProgram.setUniformMatrix4fv(
+        "u_projectionMatrix",
+        camera.getProjectionMatrix() as Float32Array
+      );
     } else {
       Log("Error: Camera not found in the world.", "#F66");
     }
@@ -106,22 +141,7 @@ export class World implements IWorld {
     }
   }
 
-  load(): void {}
-
-  // Draw all static meshes in the world
-  draw(): void {
-    if (!this.activeCamera) {
-      Log("WARNING: No active camera set.", "#ff0");
-    }
-
-    this.shaderProgram.use();
-
-    this.drawGrid();
-
-    this.staticMeshes.forEach((mesh) => {
-      mesh.draw();
-    });
-  }
+  load(): void { }
 
   // Create the grid data
   createGrid(): void {
@@ -145,9 +165,9 @@ export class World implements IWorld {
       0, 0, -this.gridSize, 0, 0, this.gridSize   // Y-axis
     );
     colors.push( // opengl is invertex x with z
-      1, 0, 0, 1, 1, 0.6, 0.6, 1, // X-axis red
-      0, 0, 1, 1, 0.2, 0.8, 1, 1, // Z-axis blue
-      0, 1, 0, 1, 0.6, 1, 0.6, 1, // Y-axis green
+      1, 0, 0, 1, ...this.gridXColor, // X-axis red
+      0, 0, 1, 1, ...this.gridZColor, // Z-axis blue
+      0, 1, 0, 1, ...this.gridYColor, // Y-axis green
     );
 
     this.gridVertices = new Float32Array(vertices);
@@ -192,15 +212,32 @@ export class World implements IWorld {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
   }
 
+  // Draw all static meshes in the world
+  draw(): void {
+    if (!this.activeCamera) {
+      Log("WARNING: No active camera set.", "#ff0");
+    }
+
+    this.shaderProgram.use();
+
+    if (this.b_showGrid) {
+      this.drawGrid();
+    }
+
+    this.staticMeshes.forEach((mesh) => {
+      mesh.draw();
+    });
+  }
+
   logWorldState(): void {
     Log("World State: -------------------------------------------", "#0FF", 6, true);
-    Log(`Number of Static Meshes: ${this.staticMeshes.length}`,     "#0FF", 6, true);
-    Log(`Number of Cameras:       ${this.cameras.length}`,          "#0FF", 6, true);
-    Log(`Directional Light:       ${this.directionalLight}`,        "#0FF", 6, true);
-    Log(`Ambient Light:           ${this.ambientlight}`,            "#0FF", 6, true);
-    Log(`Number of Point Lights:  ${this.pointLights.length}`,      "#0FF", 6, true);
-    Log(`Number of Spot Lights:   ${this.spotLights.length}`,       "#0FF", 6, true);
-    Log(`Active Camera:           ${this.activeCamera}`,            "#0FF", 6, true);
+    Log(`Number of Static Meshes: ${this.staticMeshes.length}`, "#0FF", 6, true);
+    Log(`Number of Cameras:       ${this.cameras.length}`, "#0FF", 6, true);
+    Log(`Directional Light:       ${this.directionalLight}`, "#0FF", 6, true);
+    Log(`Ambient Light:           ${this.ambientlight}`, "#0FF", 6, true);
+    Log(`Number of Point Lights:  ${this.pointLights.length}`, "#0FF", 6, true);
+    Log(`Number of Spot Lights:   ${this.spotLights.length}`, "#0FF", 6, true);
+    Log(`Active Camera:           ${this.activeCamera}`, "#0FF", 6, true);
   }
 
   destroy(): void {
@@ -208,5 +245,5 @@ export class World implements IWorld {
     this.gl.deleteBuffer(this.colorBuffer);
     // Additional cleanup logic
   }
-  
+
 }

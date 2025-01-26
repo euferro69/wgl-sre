@@ -176,12 +176,20 @@ export interface IWorld {
   gridVertices: Float32Array;
   gridColors: Float32Array;
   gridSize: number;
-  gridColor: number[];
+  gridColor: vec4;
+  gridXColor: vec4;
+  gridYColor: vec4;
+  gridZColor: vec4;
   vertexBuffer: WebGLBuffer | null;
   colorBuffer: WebGLBuffer | null;
+  b_showGrid: boolean;
 
   setGridSize(newSize: number): void;
-  setGridDefaultColor(newColor: vec4): void;
+  setGridColor(newColor: vec4): void;
+  setGridXColor(newColor: vec4): void;
+  setGridYColor(newColor: vec4): void;
+  setGridZColor(newColor: vec4): void;
+  setShowGrid(newValue: boolean): void;
 
   addStaticMesh(mesh: IStaticMesh): void;
   addCamera(camera: ICamera): void;
@@ -190,7 +198,6 @@ export interface IWorld {
   setAmbientLight(ambientLight: ILight): void;
   addPointLight(light: IPointLight): void;
   addSpotLight(light: ISpotLight): void;
-
 
   load(): void;
   draw(): void;

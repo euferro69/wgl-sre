@@ -19,6 +19,7 @@ import {
   cubeVertexData_blue,
 } from "@/assets/cube_model";
 import DirectionalLight from "@/engine/DirectionalLight";
+import { vec4 } from "gl-matrix";
 
 interface ClientHomeProps {
   vertexShaderSource: string;
@@ -90,7 +91,7 @@ export default function ClientHome({
         36,
         defaultShaderProgram
       );
-      floor.scale([10, 0.1, 10]);
+      floor.scale([10, 1.0, 10]);
       floor.rotate(90, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING
 
       const cube = new StaticMesh(
@@ -139,8 +140,7 @@ export default function ClientHome({
       world.addCamera(camera1);
       world.addCamera(camera2);
       world.setGridSize(50);
-      world.setGridDefaultColor([0.15, 0.15, 0.15, 1.0]);
-      world.createGrid();
+      world.setGridColor(vec4.fromValues(0.3, 0.3, 0.3, 1.0));
       world.addStaticMesh(floor);
       world.addStaticMesh(cube);
       // world.setDirectionalLight(new DirectionalLight([0.0, 1.0, 1.0]));
