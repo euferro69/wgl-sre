@@ -1,46 +1,58 @@
 import { IShaderProgram, IStaticMesh } from "@/interfaces/EngineInterfaces";
 import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
-import { mat4, vec3 } from "gl-matrix";
+import { mat4, vec3, vec4 } from "gl-matrix";
 
 export class StaticMesh implements IStaticMesh {
   gl: WebGLRenderingContext;
-  vertices: Float32Array;
-  vertexBuffer: WebGLBuffer | null;
-  indices: Uint16Array | null;
-  indexBuffer: WebGLBuffer | null = null;
-  attributes: {
-    name: string;
-    size: number;
-    type: GLenum;
-    normalized: boolean;
-    stride: number;
-    offset: number;
-  }[];
   shaderProgram: IShaderProgram;
-  drawingMode: GLenum;
+
+  vertices: Float32Array;
+  indices: Uint16Array | null;
+  vertexBuffer: WebGLBuffer | null;
+  indexBuffer: WebGLBuffer | null;
+  attributes: VertexAttributeDefinition[];
   vertexCount: number;
+
+  drawingMode: GLenum;
   modelMatrix: mat4;
+
+  b_showWireframe: boolean;
+  b_showPoints: boolean;
+  wireframeColor: vec4;
+  pointColor: vec4;
+  pointSize: number;
 
   constructor(
     gl: WebGLRenderingContext,
+    shaderProgram: IShaderProgram,
     vertices: Float32Array,
     attributes: VertexAttributeDefinition[],
-    count: number,
-    shaderProgram: IShaderProgram,
+    vertexCount: number,
+    b_showWireframe: boolean = false,
+    b_showPoints: boolean = false,
+    pointSize: number = 5.0,
     indices: Uint16Array | null = null,
     drawingMode: GLenum = gl.TRIANGLES,
-    modelMatrix: mat4 = mat4.create(),
   ) {
     this.gl = gl;
+    this.shaderProgram = shaderProgram;
+
     this.vertices = vertices;
     this.attributes = attributes;
-    this.vertexBuffer = null;
-    this.shaderProgram = shaderProgram;
-    this.drawingMode = drawingMode;
-    this.vertexCount = count;
-    this.modelMatrix = modelMatrix;
-
     this.indices = indices;
+    this.vertexCount = vertexCount;
+
+    this.b_showWireframe = b_showWireframe;
+    this.b_showPoints = b_showPoints;
+    this.wireframeColor = vec4.fromValues(1.0, 1.0, 1.0, 1.0);
+    this.pointColor = vec4.fromValues(1.0, 1.0, 1.0, 1.0);
+    this.pointSize = pointSize;
+
+    this.vertexBuffer = null;
+    this.indexBuffer = null;
+
+    this.drawingMode = drawingMode;
+    this.modelMatrix = mat4.create();
 
     this.createVertexBuffer();
     this.createIndexBuffer();
@@ -99,6 +111,19 @@ export class StaticMesh implements IStaticMesh {
   public setDrawingMode(mode: GLenum): void {
     this.drawingMode = mode;
   }
+  setShowWireframe(value: boolean): void {
+    this.b_showWireframe = value;
+  }
+  setShowPonits(value: boolean): void {
+    this.b_showPoints = value;
+  }
+  setWireframeColor(color: vec4): void {
+    this.wireframeColor = color;
+  }
+  setPointColor(color: vec4): void {
+    this.pointColor = color;
+  }
+  
   public draw(): void {
     this.shaderProgram.use(); // Use the assigned shader program
 
@@ -135,6 +160,26 @@ export class StaticMesh implements IStaticMesh {
         0, // offset
         this.vertexCount
       );
+    }
+
+    if (this.b_showWireframe) {
+      this.shaderProgram.setUniform4fv("u_color", this.wireframeColor);
+      this.gl.drawArrays(
+        this.gl.LINE_STRIP,
+        0,
+        this.vertexCount
+      )
+      this.shaderProgram.setUniform4fv("u_color", vec4.fromValues(0.0, 0.0, 0.0, 0.0));
+    }
+    if (this.b_showPoints) {
+      this.shaderProgram.setUniform4fv("u_color", this.pointColor);
+      this.shaderProgram.setUniform1f("u_pointSize", this.pointSize);
+      this.gl.drawArrays(
+        this.gl.POINTS,
+        0,
+        this.vertexCount
+      )
+      this.shaderProgram.setUniform4fv("u_color", vec4.fromValues(0.0, 0.0, 0.0, 0.0));
     }
 
     // Disable attributes after drawing

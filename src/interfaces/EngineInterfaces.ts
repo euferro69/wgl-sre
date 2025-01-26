@@ -70,12 +70,23 @@ export interface IShaderProgram {
 
 export interface IStaticMesh {
   gl: WebGLRenderingContext;
+  shaderProgram: IShaderProgram;
+
   vertices: Float32Array;
+  indices: Uint16Array | null;
+  vertexBuffer: WebGLBuffer | null;
+  indexBuffer: WebGLBuffer | null;
   attributes: VertexAttributeDefinition[];
   vertexCount: number;
-  shaderProgram: IShaderProgram;
+
   drawingMode: GLenum;
   modelMatrix: mat4;
+
+  b_showWireframe: boolean;
+  b_showPoints: boolean;
+  wireframeColor: vec4;
+  pointColor: vec4;
+  pointSize: number;
 
   setShaderProgram(shaderProgram: IShaderProgram): void; // Set a custom shader program for this mesh
 
@@ -84,6 +95,11 @@ export interface IStaticMesh {
   createVertexBuffer(): void;
   createIndexBuffer(): void;
 
+  setShowWireframe(newValue: boolean): void;
+  setShowPonits(newValue: boolean): void;
+  setWireframeColor(newColor: vec4): void;
+  setPointColor(newColor: vec4): void;
+  
   setDrawingMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
   draw(): void;
 

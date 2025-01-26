@@ -63,6 +63,7 @@ export default function ClientHome({
       // Static Mesh (Cube)
       const floor = new StaticMesh(
         gl,
+        defaultShaderProgram,
         cubeVertexData_white,
         [
           {
@@ -91,14 +92,17 @@ export default function ClientHome({
           },
         ],
         cubeVertexCount,
-        defaultShaderProgram,
+        true, false, 5.0, // showWireframe, showPoints, pointSize
         cubeIndices
       );
       floor.scale([10, 0.25, 10]);
-      floor.rotate(90, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING
+      floor.rotate(90, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING ---------------------------------------------------
+      floor.setWireframeColor(vec4.fromValues(0.0, 1.0, 0.0, 1.0));
+      floor.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
       const cube = new StaticMesh(
         gl,
+        defaultShaderProgram,
         cubeVertexData_blue,
         [
           {
@@ -127,10 +131,12 @@ export default function ClientHome({
           },
         ],
         cubeVertexCount,
-        defaultShaderProgram,
+        true, false, 5.0, // showWireframe, showPoints, pointSize
         cubeIndices
       );
-      cube.translate([0.0, 5.0, 0.0]); // BUG HERE
+      cube.translate([0.0, 5.0, 0.0]); // BUG HERE -------------------------------------------------------------
+      cube.setWireframeColor(vec4.fromValues(0.0, 1.0, 1.0, 1.0));
+      cube.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
       // Cameras
       const camera1 = new Camera("perspective", [10, 2, 10]);
@@ -145,7 +151,7 @@ export default function ClientHome({
       world.addCamera(camera2);
       world.setGridSize(50);
       world.setGridColor(vec4.fromValues(0.3, 0.3, 0.3, 1.0));
-      world.setShowGrid(false);
+      world.setShowGrid(true);
       world.addStaticMesh(floor);
       world.addStaticMesh(cube);
       // world.setDirectionalLight(new DirectionalLight([0.0, 1.0, 1.0]));
@@ -167,6 +173,13 @@ export default function ClientHome({
     if (!gl) {
       throw new Error("WebGL not supported");
     }
+
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK); // Set which faces to cull (default: back faces)
+    // Optional: specify front face winding order
+    gl.frontFace(gl.CCW); // Counter-clockwise
+    // Or
+    // gl.frontFace(gl.CW);  // Clockwise
 
     gl.clearColor(0.2, 0.2, 0.2, 1.0); // Set clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
