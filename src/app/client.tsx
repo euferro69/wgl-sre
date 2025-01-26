@@ -22,13 +22,19 @@ import {
   cubeVertexCount,
   cubeIndices
 } from "@/assets/cubes";
+import { ShadingMode } from "@/interfaces/EngineInterfaces";
+import { Log } from "@/utils/Logging";
 
 interface ClientHomeProps {
+  vsPath: string;
+  fsPath: string;
   vertexShaderSource: string;
   fragmentShaderSource: string;
 }
 
 export default function ClientHome({
+  vsPath,
+  fsPath,
   vertexShaderSource,
   fragmentShaderSource,
 }: ClientHomeProps) {
@@ -43,6 +49,9 @@ export default function ClientHome({
     if (canvas) {
       // WebGL Coontext
       const gl = setupGL(canvas);
+
+      Log(`Vertex Shader: ${vsPath.split("/")[4]}`, "#f0b", 5);
+      Log(`Fragment Shader: ${fsPath.split("/")[4]}`, "#f0b", 5);
 
       // Initialize input
       setTimeout(() => {
@@ -157,8 +166,15 @@ export default function ClientHome({
       // world.setDirectionalLight(new DirectionalLight([0.0, 1.0, 1.0]));
       world.logWorldState();
 
+      // Switch cameras test -----------------------------
+      // let index = 0
+      // setInterval(() => {
+      //   index === 0 ? index = 1 : index = 0;
+      //   world.setActiveCamera(world.cameras.at(index) as Camera);
+      // }, 2000);
+
       // Initialize the Renderer
-      const renderer = new Renderer(canvas, gl, inputManager, world);
+      const renderer = new Renderer(canvas, gl, defaultShaderProgram, inputManager, world);
       renderer.start();
 
       // Stop loading anim
@@ -173,17 +189,6 @@ export default function ClientHome({
     if (!gl) {
       throw new Error("WebGL not supported");
     }
-
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK); // Set which faces to cull (default: back faces)
-    // Optional: specify front face winding order
-    gl.frontFace(gl.CCW); // Counter-clockwise
-    // Or
-    // gl.frontFace(gl.CW);  // Clockwise
-
-    gl.clearColor(0.2, 0.2, 0.2, 1.0); // Set clear color
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
     return gl;
   }
 

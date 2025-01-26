@@ -18,7 +18,7 @@ export default function EngineHeader() {
         >
           Play Audio
         </Button>
-        <Button
+        {/* <Button
           variant="contained"
           color="inherit"
           size="small"
@@ -26,7 +26,7 @@ export default function EngineHeader() {
           className="!bg-slate-500"
         >
           Simulate
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

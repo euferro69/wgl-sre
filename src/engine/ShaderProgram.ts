@@ -90,6 +90,11 @@ export class ShaderProgram implements IShaderProgram{
       const location = this.getUniformLocation(name);
       this.gl.uniformMatrix4fv(location, false, value);
     }
+
+    setUniform1i(name: string, value: number): void {
+      const location = this.getUniformLocation(name);
+      this.gl.uniform1i(location, value);
+    }
   
     setUniform1f(name: string, value: number): void {
       const location = this.getUniformLocation(name);

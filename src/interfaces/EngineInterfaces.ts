@@ -1,19 +1,40 @@
 import { mat4, vec3, vec4 } from "gl-matrix";
 import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
+import { ShaderProgram } from "@/engine/ShaderProgram";
 
+export enum ShadingMode {
+  Unlit = 0,              // Unlit shading: no lighting calculations, uses texture or base color only.
+  Wireframe = 1,          // Wireframe rendering: edges of the geometry only.
+  Flat = 2,               // Flat shading: one normal per face, gives a faceted look.
+  BlinnPhong = 3,         // Blinn-Phong shading: similar to Phong but optimized for specular highlights.
+  PBR = 4,                // Physically-Based Rendering (PBR): realistic shading using physical material properties.
+  Raytracing = 5,         // Raytracing: soots rays around to simulate light interactions with surfaces for realistic reflections, refractions, and shadows.
+  Raymarching = 6,        // Raymarching: renders implicit surfaces or volumetric effects by iteratively stepping through a scene using signed distance fields (SDF).
+  Pathtracing = 7,        // Pathtracing: a more advanced form of raytracing wit random rays that simulates global illumination by tracing many light paths for accurate indirect lighting.
+  Toon = 8,               // Toon shading (Cel shading): cartoon-like rendering with discrete lighting levels.
+}
 export interface IRenderer {
   canvas: HTMLCanvasElement;
   gl: WebGLRenderingContext;
   inputManager: IInputManager;
 
+  shaderProgram: ShaderProgram;
+  clearColor: vec4;
+
   lastTime: number; // Last frame time for FPS calculation
   loadedWorld: IWorld | null; // Loaded world to draw
 
+  setup(): void; // Method to setup gl configurations
   start(): void; // Method to start the rendering loop
+
+  setShaderProgram(shader: ShaderProgram): void;
+  setClearColor(color: vec4): void;
+
   resizeCanvas(): void; // Method to resize the canvas and adjust WebGL viewport
   loadWorld(newWorld: IWorld): void; // Changes the world to render at runtime
+
   // Render Loop
-  load(): void; // Method to load shaders and objects into WebGL
+  load(): void; // Method to load shaders and objects
   update(): void; // Method to update logic (could be used for animation)
   draw(): void;
 }
@@ -61,6 +82,7 @@ export interface IShaderProgram {
   getAttributeLocation(name: string): number;
   getUniformLocation(name: string): WebGLUniformLocation;
   setUniformMatrix4fv(name: string, value: mat4): void;
+  setUniform1i(name: string, value: number): void;
   setUniform1f(name: string, value: number): void;
   setUniform3fv(name: string, value: vec3): void;
   setUniform4fv(name: string, value: vec4): void;

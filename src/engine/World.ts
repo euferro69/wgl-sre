@@ -90,7 +90,6 @@ export class World implements IWorld {
     this.createGrid();
   }
 
-
   setDirectionalLight(newDirectionalLight: IDirectionalLight): void {
     this.directionalLight = newDirectionalLight;
     this.shaderProgram.setUniform3fv("u_directionalLight", newDirectionalLight.direction as vec3);

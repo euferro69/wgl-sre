@@ -2,34 +2,60 @@ import {
   IInputManager,
   IRenderer,
   IWorld,
+  ShadingMode,
 } from "@/interfaces/EngineInterfaces";
 import { Log, setFps } from "../utils/Logging";
 import { Camera } from "@/engine/Camera";
+import { ShaderProgram } from "./ShaderProgram";
+import { vec4 } from "gl-matrix";
 
 export class Renderer implements IRenderer {
   canvas: HTMLCanvasElement;
   gl: WebGLRenderingContext; // API
   inputManager: IInputManager;
-  lastTime: number; // Last frame time for FPS calculation
 
+  shaderProgram: ShaderProgram;
+  clearColor: vec4;
+
+  lastTime: number; // Last frame time for FPS calculation
   loadedWorld: IWorld | null; // Holds the currently loaded world
 
   constructor(
     canvas: HTMLCanvasElement,
     gl: WebGLRenderingContext,
+    shaderProgram: ShaderProgram,
     inputManager: IInputManager,
-    world: IWorld
+    world: IWorld,
   ) {
     this.canvas = canvas;
     this.gl = gl;
     this.inputManager = inputManager;
 
+    this.shaderProgram = shaderProgram;
+    this.clearColor = vec4.fromValues(0.15, 0.15, 0.15, 1.0);
+    
     this.lastTime = 0;
-
     this.loadedWorld = world; // Initializes an empty world
+
+    this.setup();
 
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
+  }
+
+  setup(): void {
+    this.gl.enable(this.gl.CULL_FACE);
+    this.gl.cullFace(this.gl.BACK); // Set which faces to cull (default: back faces)
+    // Optional: specify front face winding order
+    this.gl.frontFace(this.gl.CCW); // Counter-clockwise
+    // Or
+    // gl.frontFace(gl.CW);  // Clockwise
+
+    // Set clear color
+    this.gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], this.clearColor[3]);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    this.shaderProgram.use();
   }
 
   start(): void {
@@ -37,6 +63,15 @@ export class Renderer implements IRenderer {
 
     this.load();
     this.render();
+  }
+
+  setShaderProgram(shader: ShaderProgram): void {
+    this.shaderProgram = shader;
+    shader.use();
+  }
+  setClearColor(color: vec4): void {
+    this.clearColor = color;
+    this.gl.clearColor(color[0], color[1], color[2], color[3]);
   }
 
   resizeCanvas(): void {

@@ -6,12 +6,11 @@ import ClientHome from "./client";
 export default async function Home() {
   const fileManager = new FileManager();
 
-  const vertexShaderSource = await fileManager.readGLSL(
-    "./src/shaders/vertexShader.glsl"
-  );
-  const fragmentShaderSource = await fileManager.readGLSL(
-    "./src/shaders/fragmentShader.glsl"
-  );
+  // Manual loading of shaders for now
+  const vs_path = "./src/shaders/vertexShaders/VS_Default.glsl";
+  const fs_path = "./src/shaders/fragmentShaders/FS_Unlit.glsl";
+  const vertexShaderSource = await fileManager.readGLSL(vs_path);
+  const fragmentShaderSource = await fileManager.readGLSL(fs_path);
 
   // console.log("SHADERS:", "\n", vertexShaderSource, "\n", fragmentShaderSource);
 
@@ -20,6 +19,8 @@ export default async function Home() {
       <ClientHome
         vertexShaderSource={vertexShaderSource}
         fragmentShaderSource={fragmentShaderSource}
+        vsPath={vs_path}
+        fsPath={fs_path}
       />
     </>
   );
