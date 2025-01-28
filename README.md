@@ -561,7 +561,110 @@ Think of the graphics pipeline as a factory assembly line:
 
 By understanding and controlling the pipeline, developers can create complex visuals, from realistic 3D scenes to abstract artistic effects.
 
+---
+
 # OpenGL API
+To draw geometry in WebGL with proper depth handling (so that objects in front obscure objects behind them, regardless of the order in which they are drawn), you need to use the **depth buffer**. Here's how you can achieve that:
+
+---
+
+### 1. **Enable the Depth Test**
+The depth test ensures that fragments closer to the camera overwrite those farther away.
+
+```javascript
+gl.enable(gl.DEPTH_TEST);
+gl.depthFunc(gl.LESS); // Use gl.LESS to allow fragments closer to the camera to overwrite farther ones
+```
+
+- `gl.depthFunc(gl.LESS)` specifies that a fragment will be drawn if its depth value is less than the value already stored in the depth buffer. This is the most commonly used depth test function.
+
+---
+
+### 2. **Clear the Depth Buffer**
+Before each frame is drawn, clear the depth buffer along with the color buffer.
+
+```javascript
+gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+```
+
+This ensures that previous depth values don't interfere with the current frame's rendering.
+
+---
+
+### 3. **Provide Depth Information in Your Shaders**
+The depth value is calculated automatically when transforming vertices using the `gl_Position` in the vertex shader. The depth is stored in the **z-component** of `gl_Position` during the projection transformation.
+
+For example:
+
+```glsl
+gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position, 1.0);
+```
+
+The depth value is derived from the projection matrix and used to update the depth buffer.
+
+---
+
+### 4. **Configure the Canvas to Use a Depth Buffer**
+When creating the WebGL context, ensure the depth buffer is enabled:
+
+```javascript
+const canvas = document.getElementById("canvas");
+const gl = canvas.getContext("webgl", { depth: true }); // Request depth buffer
+```
+
+---
+
+### 5. **Handle Overlapping Geometry**
+If you have overlapping geometry (e.g., two triangles in the same plane), you may encounter "z-fighting." To mitigate this, you can:
+
+- **Adjust the Depth Range**:
+   Set the depth range to better suit your scene.
+
+   ```javascript
+   gl.depthRange(0.0, 1.0); // Default: maps clip space -1 to 1 into depth buffer range 0 to 1
+   ```
+
+- **Apply Polygon Offset**:
+   For overlapping surfaces (e.g., wireframe over a filled shape), use `gl.polygonOffset`:
+
+   ```javascript
+   gl.enable(gl.POLYGON_OFFSET_FILL);
+   gl.polygonOffset(1.0, 1.0); // Offset depth values for filled polygons
+   ```
+
+---
+
+### 6. **Render Transparent Objects Last**
+Transparency requires special handling. If you have transparent objects, draw all opaque objects first with depth testing enabled. Then, disable depth writing (but keep depth testing enabled) and draw transparent objects in back-to-front order.
+
+```javascript
+// Render opaque objects
+gl.depthMask(true); // Enable depth writing
+// Draw opaque geometry here...
+
+// Render transparent objects
+gl.depthMask(false); // Disable depth writing
+gl.enable(gl.BLEND); // Enable blending
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+// Draw transparent geometry here...
+```
+
+---
+
+### 7. **Check the Depth Buffer in Action**
+If you want to debug or visualize the depth buffer, you can read it using `gl.readPixels`:
+
+```javascript
+const depthBuffer = new Float32Array(canvas.width * canvas.height);
+gl.readPixels(0, 0, canvas.width, canvas.height, gl.DEPTH_COMPONENT, gl.FLOAT, depthBuffer);
+```
+
+---
+
+### Summary
+By enabling the depth test (`gl.DEPTH_TEST`) and clearing the depth buffer before rendering each frame, you ensure that WebGL respects the depth of your geometry and draws objects correctly based on their distance from the camera, not their drawing order. This is a fundamental part of 3D rendering in WebGL.
+
+# **Configuring OpenGL State Machine**
 Here’s a breakdown of which WebGL configurations need to be set **once** (global state) versus those that need to be set **every frame** (per-frame state):
 
 ---
