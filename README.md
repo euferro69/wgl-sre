@@ -561,6 +561,134 @@ Think of the graphics pipeline as a factory assembly line:
 
 By understanding and controlling the pipeline, developers can create complex visuals, from realistic 3D scenes to abstract artistic effects.
 
+# OpenGL API
+Here’s a breakdown of which WebGL configurations need to be set **once** (global state) versus those that need to be set **every frame** (per-frame state):
+
+---
+
+### **Configurations to Set Once**
+
+These are global settings that typically remain constant throughout the rendering lifecycle:
+
+1. **Enable Depth Test**\
+   Set this once as part of your WebGL initialization:
+
+   ```javascript
+   gl.enable(gl.DEPTH_TEST);
+   ```
+
+   Depth testing ensures proper handling of depth, and you usually don’t need to disable it unless rendering specific passes like 2D overlays.
+
+2. **Set the Depth Function**\
+   Configure the depth testing function only once unless you need to change how the depth comparison works:
+
+   ```javascript
+   gl.depthFunc(gl.LESS); // Default: closer fragments overwrite farther ones
+   ```
+
+3. **Set the Depth Range**\
+   The default range of 0.0 to 1.0 is fine for most applications. Only set this once unless you need custom clipping:
+
+   ```javascript
+   gl.depthRange(0.0, 1.0);
+   ```
+
+4. **Enable Polygon Offset (Optional)**\
+   If you use polygon offset for specific cases like avoiding z-fighting, set it once and keep it enabled:
+
+   ```javascript
+   gl.enable(gl.POLYGON_OFFSET_FILL);
+   gl.polygonOffset(1.0, 1.0); // Configure it only once unless you need adjustments
+   ```
+
+5. **Enable Blending (if using transparency)**\
+   Enable blending globally if you have transparency in your scene:
+
+   ```javascript
+   gl.enable(gl.BLEND);
+   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // Standard alpha blending
+   ```
+
+6. **Configure the WebGL Context**\
+   When creating the WebGL context, request the depth buffer once:
+
+   ```javascript
+   const gl = canvas.getContext("webgl", { depth: true });
+   ```
+
+---
+
+### **Configurations to Set Every Frame**
+
+These need to be reset or updated every frame as part of your rendering loop:
+
+1. **Clear Buffers**\
+   Clear the depth and color buffers at the start of every frame:
+
+   ```javascript
+   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+   ```
+
+2. **Update Shader Uniforms**\
+   Update uniforms (e.g., transformation matrices, light properties, etc.) every frame as they depend on the current frame's state:
+
+   ```javascript
+   const location = gl.getUniformLocation(shaderProgram, "u_modelMatrix");
+   gl.uniformMatrix4fv(location, false, modelMatrix);
+   ```
+
+3. **Bind Buffers**\
+   Bind vertex buffers and attributes for the geometry being rendered. This is done for each object or geometry:
+
+   ```javascript
+   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+   gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+   gl.enableVertexAttribArray(positionLocation);
+   ```
+
+4. **Draw Calls**\
+   Perform a draw call for each object in your scene:
+
+   ```javascript
+   gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+   ```
+
+5. **Handle Dynamic Polygon Offset (if needed)**\
+   If you dynamically adjust polygon offset (e.g., for specific objects), update it every frame:
+
+   ```javascript
+   gl.polygonOffset(dynamicFactor, dynamicUnits);
+   ```
+
+6. **Set Depth Mask for Transparency**\
+   If rendering transparent objects after opaque objects, update the depth mask:
+
+   ```javascript
+   gl.depthMask(true); // For opaque objects
+   gl.depthMask(false); // For transparent objects
+   ```
+
+---
+
+### **Summary Table**
+
+| **Configuration**                                    | **Set Once**             | **Set Every Frame** |   |
+| ---------------------------------------------------- | ------------------------ | ------------------- | - |
+| `gl.enable(gl.DEPTH_TEST)`                           | ✅                        |                     |   |
+| `gl.depthFunc(gl.LESS)`                              | ✅                        |                     |   |
+| `gl.depthRange(0.0, 1.0)`                            | ✅                        |                     |   |
+| `gl.enable(gl.BLEND)`                                | ✅                        |                     |   |
+| `gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)` | ✅                        |                     |   |
+| \`gl.clear(gl.COLOR\_BUFFER\_BIT                     | gl.DEPTH\_BUFFER\_BIT)\` |                     | ✅ |
+| Shader Uniform Updates                               |                          | ✅                   |   |
+| Buffer Binding and Attribute Setup                   |                          | ✅                   |   |
+| Draw Calls                                           |                          | ✅                   |   |
+| Depth Mask Updates for Transparency                  |                          | ✅                   |   |
+
+By separating global state from per-frame state, you can optimize performance and avoid redundant WebGL calls.
+
+---
+
 # GLSL
 
 In GLSL (OpenGL Shading Language), there are various types and qualifiers used to define variables and their roles within the shader pipeline. Below is an explanation of the main **data types** and **qualifiers**, including `varying`.
