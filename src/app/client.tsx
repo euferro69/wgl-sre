@@ -5,7 +5,7 @@ import FpsOverlay from "@/components/FpsOverlay";
 import LogOverlay from "@/components/LogOverlay";
 import LoadingPopup from "@/components/LoadingPopup";
 // Engine
-import { vec4 } from "gl-matrix";
+import { vec3, vec4 } from "gl-matrix";
 import { InputManager } from "@/engine/InputManager";
 import { Renderer } from "@/engine/Renderer";
 import { ShaderProgram } from "@/engine/ShaderProgram";
@@ -101,11 +101,12 @@ export default function ClientHome({
           },
         ],
         cubeVertexCount,
-        true, false, 5.0, // showWireframe, showPoints, pointSize
+        true, true, 5.0, // showWireframe, showPoints, pointSize
         cubeIndices
       );
       floor.scale([10, 0.25, 10]);
       floor.rotate(90, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING ---------------------------------------------------
+      floor.translate([-15.0, 0.0, 0.0]);
       floor.setWireframeColor(vec4.fromValues(0.0, 1.0, 0.0, 1.0));
       floor.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
@@ -140,11 +141,11 @@ export default function ClientHome({
           },
         ],
         cubeVertexCount,
-        true, false, 5.0, // showWireframe, showPoints, pointSize
+        true, true, 5.0, // showWireframe, showPoints, pointSize
         cubeIndices
       );
-      cube.translate([0.0, -2.0, 0.0]); // BUG HERE -------------------------------------------------------------
-      cube.setWireframeColor(vec4.fromValues(0.0, 1.0, 1.0, 1.0));
+      cube.translate([0.0, 13.0, 0.0]); // BUG HERE -------------------------------------------------------------
+      cube.setWireframeColor(vec4.fromValues(0.0, 1.0, 0.0, 1.0));
       cube.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
       // Cameras
@@ -185,7 +186,7 @@ export default function ClientHome({
   }, []);
 
   function setupGL(canvas: HTMLCanvasElement): WebGLRenderingContext {
-    const gl = canvas.getContext("webgl");
+    const gl = canvas.getContext("webgl", { depth: true , antialias: true}); // Request depth buffer
     if (!gl) {
       throw new Error("WebGL not supported");
     }

@@ -44,6 +44,10 @@ export class Renderer implements IRenderer {
   }
 
   setup(): void {
+    // Set clear color
+    this.gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], this.clearColor[3]);
+
+    // Set Face culling
     this.gl.enable(this.gl.CULL_FACE);
     this.gl.cullFace(this.gl.BACK); // Set which faces to cull (default: back faces)
     // Optional: specify front face winding order
@@ -51,9 +55,18 @@ export class Renderer implements IRenderer {
     // Or
     // gl.frontFace(gl.CW);  // Clockwise
 
-    // Set clear color
-    this.gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], this.clearColor[3]);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    // Set depth testing
+    this.gl.enable(this.gl.DEPTH_TEST);
+    this.gl.depthFunc(this.gl.LESS); // Use gl.LESS to allow fragments closer to the camera to overwrite farther ones
+    this.gl.depthRange(0.0, 1.0); // Default: maps clip space -1 to 1 into depth buffer range 0 to 1
+
+    // Set polygon offset avoid z-fights
+    this.gl.enable(this.gl.POLYGON_OFFSET_FILL);
+    this.gl.polygonOffset(1.0, 1.0);
+
+    // Set alpha blending for transparency
+    this.gl.enable(this.gl.BLEND);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA); // Standard alpha blending
 
     this.shaderProgram.use();
   }
@@ -141,9 +154,9 @@ export class Renderer implements IRenderer {
     }
 
     this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 
-    // TODO draw more stuff here
-    this.loadedWorld?.draw();
+    this.loadedWorld.draw();
   }
 
   render(): void {

@@ -125,7 +125,7 @@ export interface IStaticMesh {
   setDrawingMode(mode: GLenum): void; // Change the rendering mode (e.g., gl.TRIANGLES, gl.LINES)
   draw(): void;
 
-  translate(worldPos: vec3): void; // [x,y,z]
+  translate(vector: vec3): void; // [x,y,z]
   rotate(angle: number, axis: vec3): void; // [x,y,z] // radians = degrees * (Math.PI / 180)
   scale(scale: vec3): void; // [x,y,z]
 
@@ -217,6 +217,7 @@ export interface IWorld {
   // Grid data
   gridVertices: Float32Array;
   gridColors: Float32Array;
+  gridModelMatrix: mat4;
   gridSize: number;
   gridColor: vec4;
   gridXColor: vec4;

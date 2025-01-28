@@ -1,18 +1,25 @@
 import { mat4, vec3, vec4 } from "gl-matrix";
-import { IDirectionalLight, ILight, IPointLight, ISpotLight, IStaticMesh, IWorld } from "@/interfaces/EngineInterfaces";
-import { ICamera } from "@/interfaces/EngineInterfaces";
-import { IShaderProgram } from "@/interfaces/EngineInterfaces";
+import { 
+  IDirectionalLight,
+  ILight,
+  IPointLight,
+  ISpotLight,
+  IStaticMesh,
+  IWorld,
+  ICamera,
+  IShaderProgram 
+} from "@/interfaces/EngineInterfaces";
 import { Log } from "@/utils/Logging";
-import { ShaderProgram } from "@/engine/ShaderProgram";
 
 export class World implements IWorld {
   gl: WebGLRenderingContext;
   canvas: HTMLCanvasElement;
   // Default Shader
-  shaderProgram: ShaderProgram;
+  shaderProgram: IShaderProgram;
   // Grid
   gridVertices: Float32Array;
   gridColors: Float32Array;
+  gridModelMatrix: mat4;
   gridSize: number = 10; // Size of the grid (10x10 squares)
   gridColor: vec4 = vec4.fromValues(0.5, 0.5, 0.5, 1.0); // Default grid line color
   gridXColor: vec4 = vec4.fromValues(1.0, 0.6, 0.6, 1.0);
@@ -32,7 +39,7 @@ export class World implements IWorld {
 
   constructor(
     gl: WebGLRenderingContext,
-    shaderProgram: ShaderProgram,
+    shaderProgram: IShaderProgram,
     canvas: HTMLCanvasElement,
     gridColor: vec4 = vec4.fromValues(0.5, 0.5, 0.5, 1.0),
     gridXColor: vec4 = vec4.fromValues(1.0, 0.6, 0.6, 1.0),
@@ -47,6 +54,7 @@ export class World implements IWorld {
     // Grid
     this.gridVertices = new Float32Array();
     this.gridColors = new Float32Array();
+    this.gridModelMatrix = mat4.create();
     this.vertexBuffer = gl.createBuffer();
     this.colorBuffer = gl.createBuffer();
     this.gridColor = gridColor;
@@ -175,6 +183,8 @@ export class World implements IWorld {
 
   // Draw the grid for the world
   drawGrid(): void {
+    this.shaderProgram.setUniformMatrix4fv("u_modelMatrix", this.gridModelMatrix);
+
     // Bind and set vertex data
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
     this.gl.bufferData(

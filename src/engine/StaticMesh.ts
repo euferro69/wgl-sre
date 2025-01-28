@@ -96,8 +96,8 @@ export class StaticMesh implements IStaticMesh {
   }
 
   // Transformations
-  translate(worldPos: vec3): void {
-    mat4.translate(this.modelMatrix, this.modelMatrix, worldPos);
+  translate(vector: vec3): void {
+    mat4.translate(this.modelMatrix, this.modelMatrix, vector);
   }
   rotate(angle: number, axis: vec3): void {
     const radians = angle * (Math.PI / 180);
@@ -127,7 +127,7 @@ export class StaticMesh implements IStaticMesh {
   public draw(): void {
     this.shaderProgram.use(); // Use the assigned shader program
 
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer); // Bind the vertex data buffer
 
     this.shaderProgram.setUniformMatrix4fv("u_modelMatrix", this.modelMatrix); // Set the model matrix
 
