@@ -679,8 +679,8 @@ These need to be reset or updated every frame as part of your rendering loop:
 | `gl.depthRange(0.0, 1.0)`                            | ✅                       |                     |  
 | `gl.enable(gl.BLEND)`                                | ✅                       |                     |  
 | `gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)` | ✅                       |                     |  
-| `gl.clear(gl.COLOR\_BUFFER\_BIT`                     | ✅                       |                     |      
-| `gl.DEPTH\_BUFFER\_BIT)\`                            | ✅                       |                      |
+| `gl.clear(gl.COLOR\_BUFFER\_BIT`                     |                          | ✅                  |      
+| `gl.DEPTH\_BUFFER\_BIT)\`                            |                       | ✅                      |
 | Shader Uniform Updates                               |                          | ✅                   |   
 | Buffer Binding and Attribute Setup                   |                          | ✅                   |   
 | Draw Calls                                           |                          | ✅                   |   
