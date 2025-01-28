@@ -42,10 +42,15 @@ export interface IRenderer {
 export interface IInputManager {
   canvas: HTMLCanvasElement;
   inputState: {
-    // Input state tracking (keyboard and mouse)
     keys: Record<string, boolean>;
-    mouse: { x: number; y: number; isDown: boolean };
+    mouse: {
+      x: number; y: number;
+      lastX: number; lastY: number;
+      isDown: boolean
+    };
   };
+  mouseXsensitivity: number;
+  mouseYsensitivity: number;
 
   bindInputHandlers(): void; // Method to bind input event listeners
   isKeyPressed(keyCode: string): boolean;

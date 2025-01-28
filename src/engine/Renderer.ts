@@ -52,8 +52,7 @@ export class Renderer implements IRenderer {
     this.gl.cullFace(this.gl.BACK); // Set which faces to cull (default: back faces)
     // Optional: specify front face winding order
     this.gl.frontFace(this.gl.CCW); // Counter-clockwise
-    // Or
-    // gl.frontFace(gl.CW);  // Clockwise
+    // this.gl.frontFace(this.gl.CW);  // Clockwise
 
     // Set depth testing
     this.gl.enable(this.gl.DEPTH_TEST);
@@ -115,23 +114,24 @@ export class Renderer implements IRenderer {
       Log("Error: KILL PROCESS", "#F66");
     }
 
-    // CAMERA MOVEMENT - TODO MOVE CAM SPEED TO SOME CONFIG OBJECT -------------------------------------------------------
+    // Camera free roaming - TODO NOT WORKING
     this.loadedWorld?.setActiveCamera(this.loadedWorld?.activeCamera as Camera);
-    // if (this.inputManager.isMouseDown()) {
-    //   const { deltaX, deltaY } = this.inputManager.getMouseDelta();
+    if (this.inputManager.isMouseDown()) {
+      const { deltaX, deltaY } = this.inputManager.getMouseDelta();
 
-    //   // Adjust sensitivity (scaling factor) for smoother control
-    //   const sensitivity = 0.5 // Lower values make movement smoother
-    //   const adjustedYaw = deltaX * sensitivity;
-    //   const adjustedPitch = deltaY * sensitivity;
-    //   Log(`adjustedYaw = ${adjustedYaw} adjustedPitch = ${adjustedPitch}`);
-    //   this.loadedWorld?.activeCamera?.setYaw(-adjustedYaw);
-    //   this.loadedWorld?.activeCamera?.setPitch(-adjustedPitch);
-    //   // this.loadedWorld?.activeCamera?.roll(1.0);
+      // Adjust sensitivity (scaling factor) for smoother control
+      // Log(`MouseX = ${this.inputManager.inputState.mouse.x} MouseY = ${this.inputManager.inputState.mouse.y}`);
+      // Log(`MouseLastX = ${this.inputManager.inputState.mouse.lastX} MouseLastY = ${this.inputManager.inputState.mouse.lastY}`);
+      Log(`deltaX = ${deltaX} deltaY = ${deltaY}`);
+      this.loadedWorld?.activeCamera?.setYaw(this.inputManager.mouseXsensitivity * -deltaX);
+      this.loadedWorld?.activeCamera?.setPitch(this.inputManager.mouseYsensitivity * -deltaY); // NOT WORKING
+      // this.loadedWorld?.activeCamera?.roll(1.0);
 
     //   // Update the last mouse position after using the delta
     //   this.inputManager.setMouseLastXY(this.inputManager.getMouseX(), this.inputManager.getMouseY());
-    // }
+    }
+
+    // Camera translation
     if (this.inputManager.isKeyPressed("KeyW")) {
       this.loadedWorld?.activeCamera?.moveForward(0.1);
     }
@@ -144,7 +144,16 @@ export class Renderer implements IRenderer {
     if (this.inputManager.isKeyPressed("KeyA")) {
       this.loadedWorld?.activeCamera?.moveRight(-0.1);
     }
-    // END TEST ---------------------------------------------------
+
+    // Rotation test
+    this.loadedWorld?.staticMeshes[1].rotate(0.1, [0.0, 1.0, 0.0]); // y rotation
+    this.loadedWorld?.staticMeshes[1].rotate(0.1, [1.0, 0.0, 0.0]); // x rotation
+
+    // Translation test
+    this.loadedWorld?.staticMeshes[1].translate([0.0, 0.01, 0.0]);
+
+    // Update mouse delta
+    this.inputManager.setMouseLastXY(this.inputManager.getMouseX(), this.inputManager.getMouseY());
   }
 
   draw(): void {

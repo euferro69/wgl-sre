@@ -11,6 +11,8 @@ export class InputManager implements IInputManager {
       isDown: boolean
     };
   };
+  mouseXsensitivity: number;
+  mouseYsensitivity: number;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -19,6 +21,9 @@ export class InputManager implements IInputManager {
       keys: {}, // Track pressed keys
       mouse: { x: 0, y: 0, lastX: 0, lastY: 0, isDown: false }, // Track mouse state
     };
+    this.mouseXsensitivity = 1.0;
+    this.mouseYsensitivity = 1.0;
+
     this.bindInputHandlers();
   }
 
@@ -65,9 +70,28 @@ export class InputManager implements IInputManager {
   }
 
   getMouseDelta(): { deltaX: number, deltaY: number } {
+    let deltaX = 0, deltaY = 0;
+    if (Math.abs(this.inputState.mouse.x - this.inputState.mouse.lastX) < 2) {
+      deltaX = 0;
+    } else {
+      if (this.inputState.mouse.x > this.inputState.mouse.lastX) {
+        deltaX = 1;
+      } else {
+        deltaX = -1;
+      }
+    }
+    if (Math.abs(this.inputState.mouse.y - this.inputState.mouse.lastY) < 2) {
+      deltaY = 0;
+    } else {
+      if (this.inputState.mouse.y > this.inputState.mouse.lastY) {
+        deltaY = 1;
+      } else {
+        deltaY = -1;
+      }
+    }
     return {
-      deltaX: this.inputState.mouse.x - this.inputState.mouse.lastX,
-      deltaY: this.inputState.mouse.y - this.inputState.mouse.lastY
+      deltaX: deltaX,
+      deltaY: deltaY
     }
   }
 

@@ -175,7 +175,7 @@ export class Camera implements ICamera {
   public setRoll(angle: number): void {
     this.roll += angle;
     const forward = vec3.create();
-    const radians = this.roll * (Math.PI / 180);
+    const radians = angle * (Math.PI / 180);
     vec3.subtract(forward, this.target, this.position);
     vec3.normalize(forward, forward);
 
@@ -191,7 +191,7 @@ export class Camera implements ICamera {
   public setYaw(angle: number): void {
     this.yaw += angle;
     const right = vec3.create();
-    const radians = this.yaw * (Math.PI / 180);
+    const radians = angle * (Math.PI / 180);
   
     // Calculate the right vector (cross product of forward and up vectors)
     const forward = vec3.create();
@@ -216,7 +216,7 @@ export class Camera implements ICamera {
   public setPitch(angle: number): void {
     this.pitch = Math.max(-89, Math.min(89, this.pitch));
     const right = vec3.create();
-    const radians = this.pitch * (Math.PI / 180);
+    const radians = angle * (Math.PI / 180);
   
     // Calculate the forward vector
     const forward = vec3.create();

@@ -105,8 +105,8 @@ export default function ClientHome({
         cubeIndices
       );
       floor.scale([10, 0.25, 10]);
-      floor.rotate(90, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING ---------------------------------------------------
-      floor.translate([-15.0, 0.0, 0.0]);
+      // floor.rotate(45, [0.0, 0.0, 1.0]); // ROTATION NOT WORKING ---------------------------------------------------
+      floor.translate([0.0, 2.0, 0.0]);
       floor.setWireframeColor(vec4.fromValues(0.0, 1.0, 0.0, 1.0));
       floor.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
@@ -144,7 +144,7 @@ export default function ClientHome({
         true, true, 5.0, // showWireframe, showPoints, pointSize
         cubeIndices
       );
-      cube.translate([0.0, 13.0, 0.0]); // BUG HERE -------------------------------------------------------------
+      cube.translate([0.0, 5.0, 0.0]); // BUG HERE -------------------------------------------------------------
       cube.setWireframeColor(vec4.fromValues(0.0, 1.0, 0.0, 1.0));
       cube.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
