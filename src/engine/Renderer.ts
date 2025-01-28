@@ -109,26 +109,13 @@ export class Renderer implements IRenderer {
   }
 
   update(): void {
-    // Add update logic if needed
-    if (this.inputManager.isKeyPressed("KeyK")) {
-      Log("Error: KILL PROCESS", "#F66");
-    }
-
     // Camera free roaming - TODO NOT WORKING
     this.loadedWorld?.setActiveCamera(this.loadedWorld?.activeCamera as Camera);
     if (this.inputManager.isMouseDown()) {
       const { deltaX, deltaY } = this.inputManager.getMouseDelta();
-
-      // Adjust sensitivity (scaling factor) for smoother control
-      // Log(`MouseX = ${this.inputManager.inputState.mouse.x} MouseY = ${this.inputManager.inputState.mouse.y}`);
-      // Log(`MouseLastX = ${this.inputManager.inputState.mouse.lastX} MouseLastY = ${this.inputManager.inputState.mouse.lastY}`);
-      Log(`deltaX = ${deltaX} deltaY = ${deltaY}`);
+      // Log(`deltaX = ${deltaX} deltaY = ${deltaY}`);
       this.loadedWorld?.activeCamera?.setYaw(this.inputManager.mouseXsensitivity * -deltaX);
-      this.loadedWorld?.activeCamera?.setPitch(this.inputManager.mouseYsensitivity * -deltaY); // NOT WORKING
-      // this.loadedWorld?.activeCamera?.roll(1.0);
-
-    //   // Update the last mouse position after using the delta
-    //   this.inputManager.setMouseLastXY(this.inputManager.getMouseX(), this.inputManager.getMouseY());
+      this.loadedWorld?.activeCamera?.setPitch(this.inputManager.mouseYsensitivity * -deltaY); // KINDA WORKING (NEED TO FIX ROLLING PROBLEM WHEN FREE ROAMING)
     }
 
     // Camera translation
@@ -150,7 +137,7 @@ export class Renderer implements IRenderer {
     this.loadedWorld?.staticMeshes[1].rotate(0.1, [1.0, 0.0, 0.0]); // x rotation
 
     // Translation test
-    this.loadedWorld?.staticMeshes[1].translate([0.0, 0.01, 0.0]);
+    // this.loadedWorld?.staticMeshes[1].translate([0.0, 0.01, 0.0]);
 
     // Update mouse delta
     this.inputManager.setMouseLastXY(this.inputManager.getMouseX(), this.inputManager.getMouseY());
