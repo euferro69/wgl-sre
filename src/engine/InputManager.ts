@@ -70,8 +70,9 @@ export class InputManager implements IInputManager {
   }
 
   getMouseDelta(): { deltaX: number, deltaY: number } {
+    const SMOOTH_THRESHOLD = 2;
     let deltaX = 0, deltaY = 0;
-    if (Math.abs(this.inputState.mouse.x - this.inputState.mouse.lastX) < 2) {
+    if (Math.abs(this.inputState.mouse.x - this.inputState.mouse.lastX) < SMOOTH_THRESHOLD) {
       deltaX = 0;
     } else {
       if (this.inputState.mouse.x > this.inputState.mouse.lastX) {
@@ -80,7 +81,7 @@ export class InputManager implements IInputManager {
         deltaX = -1;
       }
     }
-    if (Math.abs(this.inputState.mouse.y - this.inputState.mouse.lastY) < 2) {
+    if (Math.abs(this.inputState.mouse.y - this.inputState.mouse.lastY) < SMOOTH_THRESHOLD) {
       deltaY = 0;
     } else {
       if (this.inputState.mouse.y > this.inputState.mouse.lastY) {
