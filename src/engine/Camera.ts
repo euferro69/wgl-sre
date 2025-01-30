@@ -1,4 +1,4 @@
-import { ICamera } from "@/interfaces/EngineInterfaces";
+import { COORD_SYS_UP, ICamera } from "@/interfaces/EngineInterfaces";
 import { Log } from "@/utils/Logging";
 import { mat4, vec3 } from "gl-matrix";
 
@@ -81,6 +81,9 @@ export class Camera implements ICamera {
   // Update the view matrix based on the position, target, and up vector
   updateViewMatrix(): void {
     mat4.lookAt(this.viewMatrix, this.position, this.target, this.up);
+
+    // Fix the UP vector to always point upwards
+    this.up = vec3.fromValues(0, 1, 0); // TODO FIND BETTER WAY THEN RESET UP VECTOR TO ALWAYS BE THE GLOBAL COODINATE SYSTEM UP
   }
 
   // Change the camera's mode and update the projection matrix
@@ -190,27 +193,28 @@ export class Camera implements ICamera {
 
   public setYaw(angle: number): void {
     this.yaw += angle;
-    const right = vec3.create();
     const radians = angle * (Math.PI / 180);
   
-    // Calculate the right vector (cross product of forward and up vectors)
+    // Compute forward direction
     const forward = vec3.create();
     vec3.subtract(forward, this.target, this.position);
     vec3.normalize(forward, forward);
   
-    vec3.cross(right, forward, this.up);
+    // Compute right vector
+    const right = vec3.create();
+    vec3.cross(right, forward, COORD_SYS_UP);
     vec3.normalize(right, right);
   
-    mat4.rotate(this.rotationMatrix, mat4.create(), radians, this.up);
-  
+    // Apply the rotation
+    mat4.rotate(this.rotationMatrix, mat4.create(), radians, COORD_SYS_UP);
     // Apply the rotation to the forward vector
     vec3.transformMat4(forward, forward, this.rotationMatrix);
   
     // Update the target based on the rotated forward vector
     vec3.add(this.target, this.position, forward);
     this.updateViewMatrix();
+
     mat4.identity(this.rotationMatrix);
-    // Log(`Yaw: ${this.yaw}`, "#0FF");
   }
   
   public setPitch(angle: number): void {

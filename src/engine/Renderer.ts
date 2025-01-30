@@ -49,9 +49,8 @@ export class Renderer implements IRenderer {
 
     // Set Face culling
     this.gl.enable(this.gl.CULL_FACE);
-    this.gl.cullFace(this.gl.BACK); // Set which faces to cull (default: back faces)
-    // Optional: specify front face winding order
-    this.gl.frontFace(this.gl.CCW); // Counter-clockwise
+    // this.gl.cullFace(this.gl.FRONT_AND_BACK); // Set which faces to cull (default: back faces)
+    // this.gl.frontFace(this.gl.CCW); // Counter-clockwise
     // this.gl.frontFace(this.gl.CW);  // Clockwise
 
     // Set depth testing
@@ -113,9 +112,11 @@ export class Renderer implements IRenderer {
     this.loadedWorld?.setActiveCamera(this.loadedWorld?.activeCamera as Camera);
     if (this.inputManager.isMouseDown()) {
       const { deltaX, deltaY } = this.inputManager.getMouseDelta();
-      // Log(`deltaX = ${deltaX} deltaY = ${deltaY}`);
-      this.loadedWorld?.activeCamera?.setYaw(this.inputManager.mouseXsensitivity * -deltaX);
-      this.loadedWorld?.activeCamera?.setPitch(this.inputManager.mouseYsensitivity * -deltaY); // KINDA WORKING (NEED TO FIX ROLLING PROBLEM WHEN FREE ROAMING)
+      Log(`deltaX = ${deltaX} deltaY = ${deltaY}`);
+
+      // KINDA WORKING (NEED TO FIX ROLLING PROBLEM WHEN FREE ROAMING)
+      this.loadedWorld?.activeCamera?.setYaw(this.inputManager.mouseXsensitivity * -deltaX); 
+      this.loadedWorld?.activeCamera?.setPitch(this.inputManager.mouseYsensitivity * -deltaY);
     }
 
     // Camera translation

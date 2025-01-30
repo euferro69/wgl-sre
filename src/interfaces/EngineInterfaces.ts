@@ -255,3 +255,5 @@ export interface IWorld {
 
   destroy(): void;
 }
+
+export const COORD_SYS_UP: vec3 = vec3.fromValues(0, 1, 0);
