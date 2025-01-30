@@ -45,7 +45,7 @@ export interface IInputManager {
     keys: Record<string, boolean>;
     mouse: {
       x: number; y: number;
-      lastX: number; lastY: number;
+      deltaX: number; deltaY: number;
       isDown: boolean
     };
   };
@@ -55,11 +55,11 @@ export interface IInputManager {
   bindInputHandlers(): void; // Method to bind input event listeners
   isKeyPressed(keyCode: string): boolean;
   isMouseDown(): boolean;
+  isMouseLockedByCanvas(): boolean;
 
   getMouseX(): number;
   getMouseY(): number;
   getMouseDelta(): { deltaX: number, deltaY: number };
-  setMouseLastXY(lastX: number, lastY: number): void;
 
   processInput(deltaTime: number): void;
 }

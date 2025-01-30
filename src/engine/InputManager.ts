@@ -7,7 +7,7 @@ export class InputManager implements IInputManager {
     keys: Record<string, boolean>;
     mouse: {
       x: number; y: number;
-      lastX: number; lastY: number;
+      deltaX: number; deltaY: number;
       isDown: boolean
     };
   };
@@ -19,10 +19,10 @@ export class InputManager implements IInputManager {
     // Input handling
     this.inputState = {
       keys: {}, // Track pressed keys
-      mouse: { x: 0, y: 0, lastX: 0, lastY: 0, isDown: false }, // Track mouse state
+      mouse: { x: 0, y: 0, deltaX: 0, deltaY: 0, isDown: false }, // Track mouse state
     };
-    this.mouseXsensitivity = 1.0;
-    this.mouseYsensitivity = 1.0;
+    this.mouseXsensitivity = 0.2;
+    this.mouseYsensitivity = 0.2;
 
     this.bindInputHandlers();
   }
@@ -43,14 +43,19 @@ export class InputManager implements IInputManager {
       this.inputState.mouse.x = event.clientX - rect.left;
       this.inputState.mouse.y = event.clientY - rect.top;
       // Log(`mouse: { x: ${this.getMouseX()}, y: ${this.getMouseY()}, lastX: ${JSON.stringify(this.getMouseDelta())} }`);
+      this.inputState.mouse.deltaX = event.movementX;
+      this.inputState.mouse.deltaY = event.movementY;
+      // Log(`Mouse moved: ΔX=${this.inputState.mouse.deltaX}, ΔY=${this.inputState.mouse.deltaY}`);
     });
 
     this.canvas.addEventListener("mousedown", () => {
       this.inputState.mouse.isDown = true;
+      this.canvas.requestPointerLock();
     });
 
     this.canvas.addEventListener("mouseup", () => {
       this.inputState.mouse.isDown = false;
+      document.exitPointerLock();
     });
   }
 
@@ -62,6 +67,10 @@ export class InputManager implements IInputManager {
     return this.inputState.mouse.isDown;
   }
 
+  isMouseLockedByCanvas(): boolean {
+    return document.pointerLockElement === this.canvas;
+  }
+
   getMouseX(): number {
     return this.inputState.mouse.x;
   }
@@ -70,35 +79,22 @@ export class InputManager implements IInputManager {
   }
 
   getMouseDelta(): { deltaX: number, deltaY: number } {
-    const SMOOTH_THRESHOLD = 2;
+    const SMOOTH_THRESHOLD = 4;
     let deltaX = 0, deltaY = 0;
-    if (Math.abs(this.inputState.mouse.x - this.inputState.mouse.lastX) < SMOOTH_THRESHOLD) {
+    if (Math.abs(this.inputState.mouse.deltaX) < SMOOTH_THRESHOLD) {
       deltaX = 0;
     } else {
-      if (this.inputState.mouse.x > this.inputState.mouse.lastX) {
-        deltaX = 1;
-      } else {
-        deltaX = -1;
-      }
+      deltaX = this.inputState.mouse.deltaX;
     }
-    if (Math.abs(this.inputState.mouse.y - this.inputState.mouse.lastY) < SMOOTH_THRESHOLD) {
+    if (Math.abs(this.inputState.mouse.deltaY) < SMOOTH_THRESHOLD) {
       deltaY = 0;
     } else {
-      if (this.inputState.mouse.y > this.inputState.mouse.lastY) {
-        deltaY = 1;
-      } else {
-        deltaY = -1;
-      }
+      deltaY = this.inputState.mouse.deltaY;
     }
     return {
       deltaX: deltaX,
       deltaY: deltaY
     }
-  }
-
-  setMouseLastXY(lastX: number, lastY: number): void {
-    this.inputState.mouse.lastX = lastX;
-    this.inputState.mouse.lastY = lastY;
   }
 
   processInput(deltaTime: number): void {

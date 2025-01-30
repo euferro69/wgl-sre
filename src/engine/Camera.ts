@@ -218,7 +218,7 @@ export class Camera implements ICamera {
   }
   
   public setPitch(angle: number): void {
-    this.pitch = Math.max(-89, Math.min(89, this.pitch));
+    this.pitch = Math.max(-85, Math.min(85, this.pitch));
     const right = vec3.create();
     const radians = angle * (Math.PI / 180);
   
@@ -242,7 +242,6 @@ export class Camera implements ICamera {
     vec3.add(this.target, this.position, forward);
     this.updateViewMatrix();
     mat4.identity(this.rotationMatrix);
-    // Log(`Pitch: ${this.pitch}`, "#0FF");
   }
 
   public lookAt(target: vec3): void {

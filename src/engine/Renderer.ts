@@ -108,13 +108,12 @@ export class Renderer implements IRenderer {
   }
 
   update(): void {
-    // Camera free roaming - TODO NOT WORKING
+    // Update camera to use in the shader
     this.loadedWorld?.setActiveCamera(this.loadedWorld?.activeCamera as Camera);
-    if (this.inputManager.isMouseDown()) {
-      const { deltaX, deltaY } = this.inputManager.getMouseDelta();
-      Log(`deltaX = ${deltaX} deltaY = ${deltaY}`);
 
-      // KINDA WORKING (NEED TO FIX ROLLING PROBLEM WHEN FREE ROAMING)
+    // Camera Free Roaming
+    if (this.inputManager.isMouseLockedByCanvas()) {
+      const { deltaX, deltaY } = this.inputManager.getMouseDelta();
       this.loadedWorld?.activeCamera?.setYaw(this.inputManager.mouseXsensitivity * -deltaX); 
       this.loadedWorld?.activeCamera?.setPitch(this.inputManager.mouseYsensitivity * -deltaY);
     }
@@ -133,15 +132,12 @@ export class Renderer implements IRenderer {
       this.loadedWorld?.activeCamera?.moveRight(-0.1);
     }
 
-    // Rotation test
+    // Object (Cube) Rotation test
     this.loadedWorld?.staticMeshes[1].rotate(0.1, [0.0, 1.0, 0.0]); // y rotation
     this.loadedWorld?.staticMeshes[1].rotate(0.1, [1.0, 0.0, 0.0]); // x rotation
 
     // Translation test
     // this.loadedWorld?.staticMeshes[1].translate([0.0, 0.01, 0.0]);
-
-    // Update mouse delta
-    this.inputManager.setMouseLastXY(this.inputManager.getMouseX(), this.inputManager.getMouseY());
   }
 
   draw(): void {
