@@ -8,7 +8,7 @@ export default async function Home() {
 
   // Manual loading of shaders for now
   const vs_path = "./src/shaders/vertexShaders/VS_Default.glsl";
-  const fs_path = "./src/shaders/fragmentShaders/FS_Unlit.glsl";
+  const fs_path = "./src/shaders/fragmentShaders/FS_Flat.glsl";
   const vertexShaderSource = await fileManager.readGLSL(vs_path);
   const fragmentShaderSource = await fileManager.readGLSL(fs_path);
 

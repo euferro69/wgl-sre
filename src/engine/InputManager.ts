@@ -79,16 +79,12 @@ export class InputManager implements IInputManager {
   }
 
   getMouseDelta(): { deltaX: number, deltaY: number } {
-    const SMOOTH_THRESHOLD = 4;
+    const SMOOTH_THRESHOLD = 3;
     let deltaX = 0, deltaY = 0;
-    if (Math.abs(this.inputState.mouse.deltaX) < SMOOTH_THRESHOLD) {
-      deltaX = 0;
-    } else {
+    if (Math.abs(this.inputState.mouse.deltaX) > SMOOTH_THRESHOLD) {
       deltaX = this.inputState.mouse.deltaX;
     }
-    if (Math.abs(this.inputState.mouse.deltaY) < SMOOTH_THRESHOLD) {
-      deltaY = 0;
-    } else {
+    if (Math.abs(this.inputState.mouse.deltaY) > SMOOTH_THRESHOLD) {
       deltaY = this.inputState.mouse.deltaY;
     }
     return {

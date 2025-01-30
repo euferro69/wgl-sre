@@ -47,8 +47,8 @@ export class Renderer implements IRenderer {
     // Set clear color
     this.gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], this.clearColor[3]);
 
-    // Set Face culling
-    this.gl.enable(this.gl.CULL_FACE);
+    // Set Face culling >>> TODO BUG HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // this.gl.enable(this.gl.CULL_FACE);
     // this.gl.cullFace(this.gl.FRONT_AND_BACK); // Set which faces to cull (default: back faces)
     // this.gl.frontFace(this.gl.CCW); // Counter-clockwise
     // this.gl.frontFace(this.gl.CW);  // Clockwise
@@ -109,7 +109,7 @@ export class Renderer implements IRenderer {
 
   update(): void {
     // Update camera to use in the shader
-    this.loadedWorld?.setActiveCamera(this.loadedWorld?.activeCamera as Camera);
+    this.loadedWorld?.updateActiveCamera();
 
     // Camera Free Roaming
     if (this.inputManager.isMouseLockedByCanvas()) {

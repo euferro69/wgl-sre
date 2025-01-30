@@ -1,6 +1,6 @@
 import { IShaderProgram } from "@/interfaces/EngineInterfaces";
 import { Log } from "@/utils/Logging";
-import { mat4, vec3, vec4 } from "gl-matrix";
+import { mat3, mat4, vec3, vec4 } from "gl-matrix";
 
 export class ShaderProgram implements IShaderProgram{
     private gl: WebGLRenderingContext;
@@ -89,6 +89,11 @@ export class ShaderProgram implements IShaderProgram{
     setUniformMatrix4fv(name: string, value: mat4): void {
       const location = this.getUniformLocation(name);
       this.gl.uniformMatrix4fv(location, false, value);
+    }
+
+    setUniformMatrix3fv(name: string, value: mat3): void {
+      const location = this.getUniformLocation(name);
+      this.gl.uniformMatrix3fv(location, false, value);
     }
 
     setUniform1i(name: string, value: number): void {

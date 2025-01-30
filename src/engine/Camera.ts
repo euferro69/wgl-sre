@@ -1,5 +1,4 @@
-import { COORD_SYS_UP, ICamera } from "@/interfaces/EngineInterfaces";
-import { Log } from "@/utils/Logging";
+import { ICamera } from "@/interfaces/EngineInterfaces";
 import { mat4, vec3 } from "gl-matrix";
 
 export class Camera implements ICamera {
@@ -133,6 +132,14 @@ export class Camera implements ICamera {
     return viewProjectionMatrix;
   }
 
+  getForward(): vec3 {
+    // Compute forward direction
+    const forward = vec3.create();
+    vec3.subtract(forward, this.target, this.position);
+    vec3.normalize(forward, forward);
+    return forward;
+  }
+
   public moveForward(amount: number): void {
     const forward = vec3.create();
     vec3.subtract(forward, this.target, this.position);
@@ -202,11 +209,11 @@ export class Camera implements ICamera {
   
     // Compute right vector
     const right = vec3.create();
-    vec3.cross(right, forward, COORD_SYS_UP);
+    vec3.cross(right, forward, vec3.fromValues(0, 1, 0));
     vec3.normalize(right, right);
   
     // Apply the rotation
-    mat4.rotate(this.rotationMatrix, mat4.create(), radians, COORD_SYS_UP);
+    mat4.rotate(this.rotationMatrix, mat4.create(), radians, vec3.fromValues(0, 1, 0));
     // Apply the rotation to the forward vector
     vec3.transformMat4(forward, forward, this.rotationMatrix);
   
@@ -228,7 +235,7 @@ export class Camera implements ICamera {
     vec3.normalize(forward, forward);
   
     // Calculate the right vector (cross product of forward and up vectors)
-    vec3.cross(right, forward, this.up);
+    vec3.cross(right, forward, this.up); // this.up
     vec3.normalize(right, right);
   
     // Create a rotation matrix around the 'right' vector

@@ -120,32 +120,42 @@ export class World implements IWorld {
     this.staticMeshes.push(mesh);
   }
 
-  // Set the active camera
-  setActiveCamera(camera: ICamera): void {
-    if (this.cameras.includes(camera)) {
-      this.activeCamera = camera;
-      camera.autoAdjustAspect(this.canvas);
-
-      // Set camera matrices in the shader
-      this.shaderProgram.setUniformMatrix4fv(
-        "u_viewMatrix",
-        camera.getViewMatrix() as Float32Array
-      )
-      this.shaderProgram.setUniformMatrix4fv(
-        "u_projectionMatrix",
-        camera.getProjectionMatrix() as Float32Array
-      );
-    } else {
-      Log("Error: Camera not found in the world.", "#F66");
-    }
-  }
-
   // Add a camera to the world
   addCamera(camera: ICamera): void {
     this.cameras.push(camera);
     if (!this.activeCamera) {
       this.setActiveCamera(camera); // Set the first added camera as active by default
     }
+  }
+
+  // Set the active camera
+  setActiveCamera(camera: ICamera): void {
+    if (this.cameras.includes(camera)) {
+      this.activeCamera = camera;
+    } else {
+      Log("Error: Camera not found in the world.", "#F66");
+    }
+  }
+
+  updateActiveCamera(): void {
+    if (!this.activeCamera) {
+      throw new Error("There is no active camera to update in the world.");
+    }
+    this.activeCamera.autoAdjustAspect(this.canvas);
+
+    // Set camera matrices in the shader
+    this.shaderProgram.setUniformMatrix4fv(
+      "u_viewMatrix",
+      this.activeCamera.getViewMatrix() as Float32Array
+    )
+    this.shaderProgram.setUniformMatrix4fv(
+      "u_projectionMatrix",
+      this.activeCamera.getProjectionMatrix() as Float32Array
+    );
+    this.shaderProgram.setUniform3fv(
+      "u_cameraForward",
+      this.activeCamera.getForward()
+    )
   }
 
   load(): void { }

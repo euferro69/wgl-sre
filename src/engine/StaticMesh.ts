@@ -1,6 +1,6 @@
 import { IShaderProgram, IStaticMesh } from "@/interfaces/EngineInterfaces";
 import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
-import { mat4, vec3, vec4 } from "gl-matrix";
+import { mat3, mat4, vec3, vec4 } from "gl-matrix";
 
 export class StaticMesh implements IStaticMesh {
   gl: WebGLRenderingContext;
@@ -130,6 +130,11 @@ export class StaticMesh implements IStaticMesh {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer); // Bind the vertex data buffer
 
     this.shaderProgram.setUniformMatrix4fv("u_modelMatrix", this.modelMatrix); // Set the model matrix
+
+    // Compute and pass normal matrix
+    const normalMatrix = mat3.create();
+    mat3.normalFromMat4(normalMatrix, this.modelMatrix);
+    this.shaderProgram.setUniformMatrix3fv("u_normalMatrix", normalMatrix);
 
     // Enable and set up attributes on shader
     this.attributes.forEach((attr) => {

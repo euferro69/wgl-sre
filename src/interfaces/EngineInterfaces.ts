@@ -1,4 +1,4 @@
-import { mat4, vec3, vec4 } from "gl-matrix";
+import { mat3, mat4, vec3, vec4 } from "gl-matrix";
 import { VertexAttributeDefinition } from "@/interfaces/GLInterfaces";
 import { ShaderProgram } from "@/engine/ShaderProgram";
 
@@ -87,6 +87,7 @@ export interface IShaderProgram {
   getAttributeLocation(name: string): number;
   getUniformLocation(name: string): WebGLUniformLocation;
   setUniformMatrix4fv(name: string, value: mat4): void;
+  setUniformMatrix3fv(name: string, value: mat3): void;
   setUniform1i(name: string, value: number): void;
   setUniform1f(name: string, value: number): void;
   setUniform3fv(name: string, value: vec3): void;
@@ -165,6 +166,7 @@ export interface ICamera {
   getProjectionMatrix(): mat4;
   getViewMatrix(): mat4;
   getViewProjectionMatrix(): mat4; // Get the combined view-projection matrix
+  getForward(): vec3;
 
   rotate(axis: vec3, angle: number): void;
   setPitch(angle: number): void;
@@ -240,8 +242,11 @@ export interface IWorld {
   setShowGrid(newValue: boolean): void;
 
   addStaticMesh(mesh: IStaticMesh): void;
+
   addCamera(camera: ICamera): void;
   setActiveCamera(camera: ICamera): void;
+  updateActiveCamera(): void;
+
   setDirectionalLight(newDirectionalLight: IDirectionalLight): void;
   setAmbientLight(ambientLight: ILight): void;
   addPointLight(light: IPointLight): void;
@@ -255,5 +260,3 @@ export interface IWorld {
 
   destroy(): void;
 }
-
-export const COORD_SYS_UP: vec3 = vec3.fromValues(0, 1, 0);
