@@ -362,6 +362,105 @@ You can add more lighting types (e.g., point lights, spotlights) to your scene.
 To improve performance, you can dynamically adjust which lights affect specific objects based on distance, frustum, etc.
 You can extend the lighting calculations to include specular highlights, ambient light, and shadow mapping for more advanced effects.
 
+# **Modular Shader Structure**
+You're definitely thinking in the right direction! Having a single vertex shader that handles all transformations and then separate fragment shaders for different shading methods is a much cleaner and modular approach.
+
+Standardizing the data passed to fragment shaders is a great idea. If all your fragment shaders receive the same set of inputs (like transformed positions, normals, vertex colors, etc.), it makes switching between shaders much easier and keeps everything consistent. You could define a standard varyings structure in your vertex shader, ensuring that all fragment shaders expect the same format.
+
+One approach is to always pass:
+
+Vertex position in world space (for lighting calculations)
+Vertex normal (for shading)
+Vertex color or material properties
+That way, any fragment shader—whether for unlit, flat, Phong, or even ray marching—will have the data it needs without requiring special cases.
+
+Great! The key to a flexible system is defining a **consistent varyings structure** between the vertex and fragment shaders. Here's a structured approach:  
+
+### **1. Define a Standard Varyings Struct**  
+Your **vertex shader** should always output the same set of data, even if some fragment shaders don't use all of it.  
+
+```glsl
+// Vertex Shader Output (Varyings)
+varying vec3 vWorldPos;   // Position in world space
+varying vec3 vNormal;     // Normal vector
+varying vec4 vColor;      // Vertex color
+```
+
+### **2. Vertex Shader: Populate the Varyings**  
+Modify your **vertex shader** to calculate and pass these values.  
+
+```glsl
+attribute vec3 aPosition; // Input position
+attribute vec3 aNormal;   // Input normal
+attribute vec4 aColor;    // Input vertex color
+
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat3 uNormalMatrix; // Normal transformation
+
+void main() {
+    vec4 worldPos = uModelMatrix * vec4(aPosition, 1.0);
+    
+    vWorldPos = worldPos.xyz;
+    vNormal = normalize(uNormalMatrix * aNormal);
+    vColor = aColor;
+
+    gl_Position = uProjectionMatrix * uViewMatrix * worldPos;
+}
+```
+
+### **3. Fragment Shaders: Use the Data Accordingly**  
+Each **fragment shader** will receive the same inputs but use only what it needs.  
+
+- **Unlit Shader:** Uses only `vColor`.  
+- **Flat Shader:** Uses `vNormal` and `vColor`.  
+- **Phong Shader:** Uses `vNormal`, `vWorldPos`, and light properties.  
+
+#### **Example: Unlit Fragment Shader**
+```glsl
+varying vec4 vColor;
+
+void main() {
+    gl_FragColor = vColor;
+}
+```
+
+#### **Example: Flat Shading Fragment Shader**
+```glsl
+varying vec3 vNormal;
+varying vec4 vColor;
+
+void main() {
+    float intensity = max(dot(normalize(vNormal), vec3(0, 0, 1)), 0.0);
+    gl_FragColor = vColor * intensity;
+}
+```
+
+#### **Example: Phong Fragment Shader**
+```glsl
+varying vec3 vNormal;
+varying vec3 vWorldPos;
+
+uniform vec3 uLightPos;
+uniform vec3 uLightColor;
+
+void main() {
+    vec3 lightDir = normalize(uLightPos - vWorldPos);
+    float diff = max(dot(normalize(vNormal), lightDir), 0.0);
+    gl_FragColor = vec4(uLightColor * diff, 1.0);
+}
+```
+
+### **4. Why This Works Well**
+- **Consistency:** All fragment shaders receive the same variables, so switching shaders is seamless.  
+- **Flexibility:** Some shaders ignore data they don’t need (like unlit shading ignoring `vNormal`).  
+- **Extensibility:** Adding more shading models (e.g., ray marching) is easy without changing the vertex shader.  
+
+This should give you a solid foundation!
+
+---
+
 # Graphics Programming
 
 **Graphics programming** is the process of using code to create and manipulate images, animations, and visual effects. It involves controlling how objects are drawn on the screen, using techniques like 3D modeling, shading, lighting, and texturing, often by leveraging the GPU through APIs like OpenGL, DirectX, or Vulkan.
