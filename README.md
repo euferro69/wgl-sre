@@ -362,6 +362,18 @@ You can add more lighting types (e.g., point lights, spotlights) to your scene.
 To improve performance, you can dynamically adjust which lights affect specific objects based on distance, frustum, etc.
 You can extend the lighting calculations to include specular highlights, ambient light, and shadow mapping for more advanced effects.
 
+# **Modular Shader Structure**
+You're definitely thinking in the right direction! Having a single vertex shader that handles all transformations and then separate fragment shaders for different shading methods is a much cleaner and modular approach.
+
+Standardizing the data passed to fragment shaders is a great idea. If all your fragment shaders receive the same set of inputs (like transformed positions, normals, vertex colors, etc.), it makes switching between shaders much easier and keeps everything consistent. You could define a standard varyings structure in your vertex shader, ensuring that all fragment shaders expect the same format.
+
+One approach is to always pass:
+
+Vertex position in world space (for lighting calculations)
+Vertex normal (for shading)
+Vertex color or material properties
+That way, any fragment shader—whether for unlit, flat, Phong, or even ray marching—will have the data it needs without requiring special cases.
+
 # Graphics Programming
 
 **Graphics programming** is the process of using code to create and manipulate images, animations, and visual effects. It involves controlling how objects are drawn on the screen, using techniques like 3D modeling, shading, lighting, and texturing, often by leveraging the GPU through APIs like OpenGL, DirectX, or Vulkan.
