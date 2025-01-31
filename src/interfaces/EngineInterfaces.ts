@@ -77,23 +77,57 @@ export interface IShaderProgram {
   // Method to use the shader program in WebGL
   use(): void;
 
-  // Methods used for shader compilation process
+  // Shader compilation process
   createShader(type: GLenum, source: string): WebGLShader;
   createProgram(
     vertexShader: WebGLShader,
     fragmentShader: WebGLShader
   ): WebGLProgram;
 
+  // Attribute & Uniform Management
   getAttributeLocation(name: string): number;
   getUniformLocation(name: string): WebGLUniformLocation;
+
+  // Upload Matrices
   setUniformMatrix4fv(name: string, value: mat4): void;
   setUniformMatrix3fv(name: string, value: mat3): void;
+
+  // Upload Scalars & Vectors
   setUniform1i(name: string, value: number): void;
   setUniform1f(name: string, value: number): void;
   setUniform3fv(name: string, value: vec3): void;
   setUniform4fv(name: string, value: vec4): void;
 
-  delete(): void; // Method to clean up the shader program
+  // Texture Support
+  setUniformSampler2D(name: string, textureUnit: number): void; // Bind texture to shader
+  bindTexture(textureUnit: number, texture: WebGLTexture): void; // Activate and bind a texture
+  unbindTexture(textureUnit: number): void; // Unbind texture
+
+  delete(): void; // Cleanup method
+}
+
+
+export interface IMaterial {
+  gl: WebGLRenderingContext;
+  shaderProgram: ShaderProgram;
+  name: string;
+  albedo: vec3; // Base color
+  metallic: number; // 0.0 (dielectric) to 1.0 (metal)
+  roughness: number; // 0.0 (smooth) to 1.0 (rough)
+  specularColor: vec3;
+  specularIntensity: number;
+  ao: number; // Ambient occlusion factor
+  emissive: vec3; // Self-illumination
+  alpha: number; // 0.0 (transparent) to 1.0 (opaque)
+
+  // Optional texture maps
+  albedoTexture?: WebGLTexture;
+  metallicRoughnessTexture?: WebGLTexture;
+  aoTexture?: WebGLTexture;
+  emissiveTexture?: WebGLTexture;
+  normalMap?: WebGLTexture;
+
+  bind(gl: WebGLRenderingContext, shader: IShaderProgram): void;
 }
 
 export interface IStaticMesh {

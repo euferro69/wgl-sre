@@ -85,35 +85,43 @@ export class ShaderProgram implements IShaderProgram{
       return location;
     }
   
-    // Set uniform values
+    // Set uniform matrices
     setUniformMatrix4fv(name: string, value: mat4): void {
       const location = this.getUniformLocation(name);
       this.gl.uniformMatrix4fv(location, false, value);
     }
-
     setUniformMatrix3fv(name: string, value: mat3): void {
       const location = this.getUniformLocation(name);
       this.gl.uniformMatrix3fv(location, false, value);
     }
 
+    // Upload scalars and vectors
     setUniform1i(name: string, value: number): void {
       const location = this.getUniformLocation(name);
       this.gl.uniform1i(location, value);
     }
-  
     setUniform1f(name: string, value: number): void {
       const location = this.getUniformLocation(name);
       this.gl.uniform1f(location, value);
     }
-  
     setUniform3fv(name: string, value: vec3): void {
       const location = this.getUniformLocation(name);
       this.gl.uniform3fv(location, value);
     }
-  
     setUniform4fv(name: string, value: vec4): void {
       const location = this.getUniformLocation(name);
       this.gl.uniform4fv(location, value);
+    }
+
+    // Texture support
+    setUniformSampler2D(name: string, textureUnit: number): void {
+      throw new Error("Method not implemented.");
+    }
+    bindTexture(textureUnit: number, texture: WebGLTexture): void {
+      throw new Error("Method not implemented.");
+    }
+    unbindTexture(textureUnit: number): void {
+      throw new Error("Method not implemented.");
     }
   
     // Cleanup the program

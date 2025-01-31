@@ -110,6 +110,41 @@ export default function ClientHome({
       floor.setWireframeColor(vec4.fromValues(0.0, 1.0, 0.0, 1.0));
       floor.setPointColor(vec4.fromValues(1.0, 0.5, 0.0, 1.0));
 
+      const RedWall = new StaticMesh(
+        gl,
+        defaultShaderProgram,
+        cubeVertexData_white,
+        [
+          {
+            name: "a_position",
+            size: 3, // 3 floats for x, y, z
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex (position + color)
+            offset: 0, // Start at the beginning of each vertex
+          },
+          {
+            name: "a_color",
+            size: 3, // 3 floats for r, g, b
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
+            offset: 3 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
+          },
+          {
+            name: "a_normal",
+            size: 3, // 3 floats for normal
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 9 * Float32Array.BYTES_PER_ELEMENT, // Total bytes per vertex
+            offset: 6 * Float32Array.BYTES_PER_ELEMENT, // Start after position (3 floats)
+          },
+        ],
+        cubeVertexCount,
+        true, true, 5.0, // showWireframe, showPoints, pointSize
+        cubeIndices
+      );
+
       const cube = new StaticMesh(
         gl,
         defaultShaderProgram,
