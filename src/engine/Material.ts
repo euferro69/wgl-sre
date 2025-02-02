@@ -67,11 +67,11 @@ export class Material implements IMaterial {
     shader.setUniform3fv("u_emissive", this.emissive);
     shader.setUniform1f("u_alpha", this.alpha);
 
-    // Bind textures if available
-    if (this.albedoTexture) shader.setTexture("u_albedoTexture", this.albedoTexture, 0);
-    if (this.metallicRoughnessTexture) shader.setTexture("u_metallicRoughnessTexture", this.metallicRoughnessTexture, 1);
-    if (this.aoTexture) shader.setTexture("u_aoTexture", this.aoTexture, 2);
-    if (this.emissiveTexture) shader.setTexture("u_emissiveTexture", this.emissiveTexture, 3);
-    if (this.normalMap) shader.setTexture("u_normalMap", this.normalMap, 4);
+    // // Bind textures if available
+    // if (this.albedoTexture) shader.setTexture("u_albedoTexture", this.albedoTexture, 0);
+    // if (this.metallicRoughnessTexture) shader.setTexture("u_metallicRoughnessTexture", this.metallicRoughnessTexture, 1);
+    // if (this.aoTexture) shader.setTexture("u_aoTexture", this.aoTexture, 2);
+    // if (this.emissiveTexture) shader.setTexture("u_emissiveTexture", this.emissiveTexture, 3);
+    // if (this.normalMap) shader.setTexture("u_normalMap", this.normalMap, 4);
   }
 }
